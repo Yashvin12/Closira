@@ -115,7 +115,7 @@ export function EscalationCard({
               color={isResolving ? colors.success : colors.success}
             />
             <Text style={[styles.resolveText, isResolving && styles.resolveTextDone]}>
-              {isResolving ? 'Resolved' : 'Resolve'}
+              {isResolving ? 'Query Solved!' : 'Resolve'}
             </Text>
           </Animated.View>
         </Pressable>
