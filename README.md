@@ -8,6 +8,13 @@
 
 ---
 
+## 📹 Video Walkthrough
+
+> **[Click here to watch the 5-minute video walkthrough](https://your-video-link-here)**  
+> *(Note: You can also find the `.mp4` file in the `docs/video/` folder of this repository).*
+
+---
+
 ## Table of Contents
 
 1. [Project Overview](#1-project-overview)  
@@ -677,6 +684,7 @@ The schema is deliberately API-ready: field names match the FastAPI response mod
 
 ### Dashboard Screen
 ![Dashboard Screen](docs/screenshots/dashboard_1.jpeg)
+
 ![Dashboard Screen 2](docs/screenshots/dashboard_2.jpeg)
 
 Shows the date-aware header, 2×2 stat grid (Total Leads, Unhandled, Escalations, Follow-ups Due), quick-action cards, and recent activity feed.
@@ -706,6 +714,7 @@ Shows task cards with formatted due times and the Mark Done animation (strikethr
 
 ### Conversation Detail Screen
 ![Conversation Detail Screen](docs/screenshots/conversation_detail_1.jpeg)
+
 ![Conversation Detail Screen 2](docs/screenshots/conversation_detail_2.jpeg)
 
 Shows the message thread (customer left grey, AI right indigo), SOP Matched info box, AI Summary box with "AUTO-GENERATED" badge, and the vertical status timeline with coloured icon dots.
