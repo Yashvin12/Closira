@@ -10,7 +10,7 @@
 
 ## 📹 Video Walkthrough
 
-> **[Click here to watch the 5-minute video walkthrough](./docs/video/demo%20(1).mp4)**  
+> **[Click here to watch the 3-minute video walkthrough](https://drive.google.com/file/d/1OwbO9cO9_oFgSGjx6Y2EhrbVtOA8vLSR/view?usp=sharing)**  
 > *(Note: You can also find the `.mp4` file in the `docs/video/` folder of this repository).*
 
 ---
