@@ -8,6 +8,7 @@
       "status": "qualified",
       "sop_matched": "Pricing Inquiry",
       "suggested_response": "Thank you for your interest! Our pricing starts at $99/month for the Starter plan. I'd be happy to walk you through our plans and find the best fit for your needs. Would you like to schedule a quick call?",
+      "ai_summary": "High-intent enterprise prospect inquiring about pricing for a 50+ seat team. SOP matched and auto-qualified. Recommend scheduling a tailored enterprise demo call to close the lead.",
       "escalation_reason": null,
       "created_at": "2026-05-23T08:15:00Z",
       "updated_at": "2026-05-23T08:15:02Z",
@@ -29,6 +30,7 @@
       "status": "qualified",
       "sop_matched": "Booking & Appointment",
       "suggested_response": "I'd love to help you book an appointment! We have availability this week. Could you share your preferred date and time? I'll get that confirmed for you right away.",
+      "ai_summary": "Customer requesting a Tuesday morning consultation slot. Standard booking flow triggered. Awaiting customer's preferred time window to finalize calendar confirmation.",
       "escalation_reason": null,
       "created_at": "2026-05-23T07:42:00Z",
       "updated_at": "2026-05-23T07:42:03Z",
@@ -50,6 +52,7 @@
       "status": "escalated",
       "sop_matched": "Complaint Resolution",
       "suggested_response": "I'm sorry to hear about your experience. Your satisfaction is our top priority. I've flagged this for our support team and you'll receive a detailed response within 2 hours.",
+      "ai_summary": "VIP customer complaint about broken order #4521 with a 3-day unresolved support delay. Customer is threatening a chargeback. Escalated to human agent — requires immediate manager intervention to prevent churn.",
       "escalation_reason": "VIP customer with repeated complaint — requires manager intervention",
       "created_at": "2026-05-23T06:30:00Z",
       "updated_at": "2026-05-23T06:35:00Z",
@@ -73,6 +76,7 @@
       "status": "qualified",
       "sop_matched": "Product Information",
       "suggested_response": "Great question! I'd be happy to share more details about our product. We offer a comprehensive suite of features including real-time analytics, automated workflows, and 24/7 support. Would you like a personalized demo?",
+      "ai_summary": "B2B procurement inquiry for ProMax 3000 technical specifications. Procurement team involvement indicates potential for a bulk order. Follow up with a detailed spec sheet and a demo invite.",
       "escalation_reason": null,
       "created_at": "2026-05-23T09:10:00Z",
       "updated_at": "2026-05-23T09:10:02Z",
@@ -94,6 +98,7 @@
       "status": "qualified",
       "sop_matched": "Partnership & Collaboration",
       "suggested_response": "Thank you for your interest in partnering with us! We have several partnership models available. I'll connect you with our Business Development team who can discuss the best arrangement. Expect a response within 24 hours.",
+      "ai_summary": "High-value strategic inquiry from a prospective South Asian reseller. Routing to Business Development is appropriate. This represents a potential long-term revenue channel and should be prioritised in follow-up.",
       "escalation_reason": null,
       "created_at": "2026-05-23T05:20:00Z",
       "updated_at": "2026-05-23T05:20:03Z",
@@ -115,6 +120,7 @@
       "status": "new",
       "sop_matched": null,
       "suggested_response": null,
+      "ai_summary": null,
       "escalation_reason": null,
       "created_at": "2026-05-23T09:25:00Z",
       "updated_at": "2026-05-23T09:25:00Z",
@@ -133,6 +139,7 @@
       "status": "escalated",
       "sop_matched": null,
       "suggested_response": null,
+      "ai_summary": "Critical access outage reported by an existing customer ahead of a time-sensitive client presentation. No SOP matched due to unusual nature of the issue. Escalated immediately for human review — SLA breach risk is high.",
       "escalation_reason": "No SOP matched — requires manual review",
       "created_at": "2026-05-23T08:55:00Z",
       "updated_at": "2026-05-23T08:55:03Z",
@@ -152,6 +159,7 @@
       "status": "followed_up",
       "sop_matched": "Booking & Appointment",
       "suggested_response": "I'd love to help you book an appointment! We have availability this week. Could you share your preferred date and time?",
+      "ai_summary": "Demo scheduling follow-up from a warm lead. Customer has confirmed Thursday 3 PM EST. Calendar invite is pending dispatch. Standard booking SOP applied and follow-up task created successfully.",
       "escalation_reason": null,
       "created_at": "2026-05-23T04:10:00Z",
       "updated_at": "2026-05-23T07:00:00Z",
@@ -166,8 +174,50 @@
         { "event_type": "qualified", "detail": "Auto-qualified after SOP match", "created_at": "2026-05-23T04:10:03Z" },
         { "event_type": "followup_scheduled", "detail": "Follow-up scheduled in 30 minutes", "created_at": "2026-05-23T07:00:00Z" }
       ]
+    },
+    {
+      "id": "enq-009-q7r8",
+      "channel": "email",
+      "customer_name": "Liam Foster",
+      "message": "I've been charged twice this month. My bank statement shows two transactions for the same invoice. Please fix this immediately.",
+      "status": "escalated",
+      "sop_matched": "Billing & Payment",
+      "suggested_response": "I'm sorry for the billing issue. I've flagged this to our finance team who will process a refund for the duplicate charge within 3-5 business days.",
+      "ai_summary": "Billing discrepancy — customer reports duplicate charge for the same invoice. Finance team review required. Risk of chargeback dispute if not resolved promptly. Escalated to billing team for immediate reconciliation.",
+      "escalation_reason": "Billing discrepancy reported — customer charged twice for annual subscription",
+      "created_at": "2026-05-23T07:20:00Z",
+      "updated_at": "2026-05-23T07:22:00Z",
+      "messages": [
+        { "id": "msg-017", "sender": "customer", "text": "I've been charged twice this month. My bank statement shows two transactions for the same invoice. Please fix this immediately.", "timestamp": "2026-05-23T07:20:00Z" },
+        { "id": "msg-018", "sender": "ai", "text": "I'm sorry for the billing issue. I've flagged this to our finance team who will process a refund for the duplicate charge within 3-5 business days.", "timestamp": "2026-05-23T07:20:02Z" }
+      ],
+      "timeline": [
+        { "event_type": "created", "detail": "Enquiry received via Email", "created_at": "2026-05-23T07:20:00Z" },
+        { "event_type": "sop_matched", "detail": "Matched SOP: Billing & Payment", "created_at": "2026-05-23T07:20:01Z" },
+        { "event_type": "escalated", "detail": "Billing discrepancy — escalated to finance team", "created_at": "2026-05-23T07:22:00Z" }
+      ]
+    },
+    {
+      "id": "enq-010-s9t0",
+      "channel": "whatsapp",
+      "customer_name": "Sofia Andersson",
+      "message": "We need GDPR compliance documentation before we can proceed with the contract. Can your legal team provide the DPA?",
+      "status": "escalated",
+      "sop_matched": null,
+      "suggested_response": null,
+      "ai_summary": "Prospective enterprise customer requesting GDPR compliance documentation (DPA) as a contract prerequisite. No SOP available for regulatory legal requests. Escalated to legal team — opportunity is blocked until documentation is provided.",
+      "escalation_reason": "Regulatory compliance question — needs legal team review before response",
+      "created_at": "2026-05-23T05:45:00Z",
+      "updated_at": "2026-05-23T05:47:00Z",
+      "messages": [
+        { "id": "msg-019", "sender": "customer", "text": "We need GDPR compliance documentation before we can proceed with the contract. Can your legal team provide the DPA?", "timestamp": "2026-05-23T05:45:00Z" }
+      ],
+      "timeline": [
+        { "event_type": "created", "detail": "Enquiry received via WhatsApp", "created_at": "2026-05-23T05:45:00Z" },
+        { "event_type": "escalated", "detail": "Legal compliance request — no SOP match, escalated to legal team", "created_at": "2026-05-23T05:47:00Z" }
+      ]
     }
   ],
-  "total": 8,
+  "total": 10,
   "page": 1
 }

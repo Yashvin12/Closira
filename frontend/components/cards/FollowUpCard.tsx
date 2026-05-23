@@ -24,24 +24,14 @@ import {
   letterSpacing,
 } from '../../constants/theme';
 import type { FollowUp } from '../../hooks/useMockData';
+import { getInitials, getAvatarBg } from '../../utils/formatters';
 
 interface FollowUpCardProps {
   followup: FollowUp;
   onMarkDone: (id: string) => void;
 }
 
-function getInitials(name: string): string {
-  return name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-}
 
-function getAvatarBg(name: string): string {
-  const palette = ['#6366F1', '#8B5CF6', '#EC4899', '#14B8A6', '#F59E0B', '#22C55E', '#3B82F6'];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
-  }
-  return palette[Math.abs(hash) % palette.length];
-}
 
 function formatDueTime(timestamp: string): string {
   const date = new Date(timestamp);

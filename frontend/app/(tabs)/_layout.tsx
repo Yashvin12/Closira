@@ -85,7 +85,7 @@ export default function TabLayout(): React.JSX.Element {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Dashboard',
+          title: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'grid' : 'grid-outline'} color={color} focused={focused} />
           ),

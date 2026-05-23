@@ -24,23 +24,14 @@ import {
   iconSize,
 } from '../../constants/theme';
 import type { Escalation } from '../../hooks/useMockData';
+import { formatRelativeTime } from '../../utils/formatters';
 
 interface EscalationCardProps {
   escalation: Escalation;
   onResolve: (id: string) => void;
 }
 
-function formatRelativeTime(timestamp: string): string {
-  const now = new Date();
-  const then = new Date(timestamp);
-  const diffMs = now.getTime() - then.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffMin < 1) return 'Just now';
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHr < 24) return `${diffHr}h ago`;
-  return `${Math.floor(diffHr / 24)}d ago`;
-}
+
 
 export function EscalationCard({
   escalation,

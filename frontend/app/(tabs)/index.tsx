@@ -36,50 +36,9 @@ import {
   iconSize,
   letterSpacing,
 } from '../../constants/theme';
+import { getInitials, getAvatarBg, formatRelativeTime, getFormattedDate, getGreeting } from '../../utils/formatters';
 
-/** Format timestamp as relative time string. */
-function formatRelativeTime(timestamp: string): string {
-  const now = new Date();
-  const then = new Date(timestamp);
-  const diffMs = now.getTime() - then.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffMin < 1) return 'Just now';
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHr < 24) return `${diffHr}h ago`;
-  return `${Math.floor(diffHr / 24)}d ago`;
-}
 
-/** Get formatted date like "FRI, 23 MAY". */
-function getFormattedDate(): string {
-  return new Date().toLocaleDateString('en-US', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  }).toUpperCase();
-}
-
-/** Get greeting based on time of day. */
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
-}
-
-/** Get initials avatar background (deterministic). */
-function getAvatarBg(name: string): string {
-  const palette = ['#6366F1', '#8B5CF6', '#EC4899', '#14B8A6', '#F59E0B', '#22C55E', '#3B82F6'];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
-  }
-  return palette[Math.abs(hash) % palette.length];
-}
-
-function getInitials(name: string): string {
-  return name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-}
 
 /**
  * Dashboard screen component.
@@ -143,7 +102,7 @@ export default function DashboardScreen(): React.JSX.Element {
         <View style={styles.headerLeft}>
           <Text style={styles.headerDate}>{getFormattedDate()}</Text>
           <Text style={styles.headerGreeting}>{getGreeting()}</Text>
-          <Text style={styles.headerTitle}>Dashboard</Text>
+          <Text style={styles.headerTitle}>Home</Text>
         </View>
         {/* Avatar initial */}
         <View style={styles.headerAvatar}>

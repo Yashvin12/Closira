@@ -49,8 +49,8 @@ export const colors = {
   textPrimary: '#F8FAFC',
   /** Secondary text — Slate 400 */
   textSecondary: '#94A3B8',
-  /** Tertiary / disabled text */
-  textTertiary: '#475569',
+  /** Tertiary / disabled text — Slate 500 (improved WCAG contrast) */
+  textTertiary: '#64748B',
 
   /** Divider / border — Slate 700 */
   border: '#334155',

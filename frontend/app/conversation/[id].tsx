@@ -32,6 +32,7 @@ import {
   shadows,
   iconSize,
 } from '../../constants/theme';
+import { getInitials, getAvatarBg } from '../../utils/formatters';
 
 function formatMessageTime(timestamp: string): string {
   return new Date(timestamp).toLocaleTimeString('en-US', {
@@ -66,18 +67,7 @@ function getEventDisplay(
   return map[eventType] || { label: eventType, icon: 'ellipse', color: colors.textTertiary };
 }
 
-function getInitials(name: string): string {
-  return name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-}
 
-function getAvatarBg(name: string): string {
-  const palette = ['#6366F1', '#8B5CF6', '#EC4899', '#14B8A6', '#F59E0B', '#22C55E', '#3B82F6'];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
-  }
-  return palette[Math.abs(hash) % palette.length];
-}
 
 /**
  * Conversation detail screen component.
@@ -178,6 +168,29 @@ export default function ConversationDetailScreen(): React.JSX.Element {
                 <Text style={styles.infoBoxValue}>{enquiry.suggested_response}</Text>
               </View>
             )}
+          </View>
+        )}
+
+        {/* ─── AI Summary ──────────────────────────────────── */}
+        {enquiry.ai_summary && (
+          <View style={styles.section}>
+            <View style={styles.sectionLabelRow}>
+              <Text style={styles.sectionLabel}>AI SUMMARY</Text>
+              <View style={styles.sectionDivider} />
+            </View>
+            <View style={[styles.infoBox, styles.infoBoxSummary]}>
+              <View style={styles.infoBoxHeader}>
+                <View style={[styles.infoIconRing, { backgroundColor: 'rgba(99,102,241,0.18)' }]}>
+                  <Ionicons name="bulb" size={14} color={colors.primary} />
+                </View>
+                <Text style={styles.infoBoxLabel}>AI Analysis</Text>
+                <View style={styles.summaryBadge}>
+                  <Ionicons name="flash" size={9} color={colors.primary} />
+                  <Text style={styles.summaryBadgeText}>AUTO-GENERATED</Text>
+                </View>
+              </View>
+              <Text style={styles.infoBoxValue}>{enquiry.ai_summary}</Text>
+            </View>
           </View>
         )}
 
@@ -448,6 +461,27 @@ const styles = StyleSheet.create({
   },
   infoBoxAI: {
     borderColor: 'rgba(139,92,246,0.2)',
+  },
+  infoBoxSummary: {
+    borderColor: 'rgba(99,102,241,0.25)',
+    borderLeftWidth: 3,
+    borderLeftColor: colors.primary,
+  },
+  summaryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: colors.primaryLight,
+    borderRadius: borderRadius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    marginLeft: 'auto',
+  },
+  summaryBadgeText: {
+    fontSize: 8,
+    fontFamily: fontFamily.bold,
+    color: colors.primary,
+    letterSpacing: 0.6,
   },
   infoBoxBorder: {
     borderLeftWidth: 3,
