@@ -1,0 +1,51 @@
+{
+  "data": [
+    {
+      "id": "fu-001",
+      "enquiry_id": "enq-001-a1b2",
+      "customer_name": "Sarah Mitchell",
+      "channel": "whatsapp",
+      "message_preview": "Follow up on enterprise pricing discussion — send proposal document",
+      "due_at": "2026-05-23T14:30:00Z",
+      "status": "pending"
+    },
+    {
+      "id": "fu-002",
+      "enquiry_id": "enq-002-c3d4",
+      "customer_name": "Raj Patel",
+      "channel": "email",
+      "message_preview": "Confirm Tuesday morning consultation appointment and send calendar invite",
+      "due_at": "2026-05-23T11:00:00Z",
+      "status": "pending"
+    },
+    {
+      "id": "fu-003",
+      "enquiry_id": "enq-005-i9j0",
+      "customer_name": "Priya Sharma",
+      "channel": "email",
+      "message_preview": "Connect with Business Development team regarding reseller partnership",
+      "due_at": "2026-05-23T16:00:00Z",
+      "status": "pending"
+    },
+    {
+      "id": "fu-004",
+      "enquiry_id": "enq-008-o5p6",
+      "customer_name": "Marcus Thompson",
+      "channel": "email",
+      "message_preview": "Send demo calendar invite for Thursday 3 PM EST as requested",
+      "due_at": "2026-05-23T12:00:00Z",
+      "status": "pending"
+    },
+    {
+      "id": "fu-005",
+      "enquiry_id": "enq-004-g7h8",
+      "customer_name": "David Okonkwo",
+      "channel": "whatsapp",
+      "message_preview": "Share ProMax 3000 specification sheet with procurement team contact",
+      "due_at": "2026-05-23T17:30:00Z",
+      "status": "pending"
+    }
+  ],
+  "total": 5,
+  "page": 1
+}

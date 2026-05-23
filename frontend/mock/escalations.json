@@ -1,0 +1,46 @@
+{
+  "data": [
+    {
+      "id": "esc-001",
+      "enquiry_id": "enq-003-e5f6",
+      "channel": "call",
+      "customer_name": "Emily Chen",
+      "reason": "VIP customer with repeated complaint — requires manager intervention",
+      "urgency": "high",
+      "message_preview": "I have a serious complaint about my order #4521. The product arrived broken...",
+      "created_at": "2026-05-23T06:35:00Z"
+    },
+    {
+      "id": "esc-002",
+      "enquiry_id": "enq-007-m3n4",
+      "channel": "call",
+      "customer_name": "Anika Weber",
+      "reason": "No SOP matched — requires manual review. Customer reported urgent access issue.",
+      "urgency": "high",
+      "message_preview": "I need help urgently — our entire team's access has been revoked...",
+      "created_at": "2026-05-23T08:55:03Z"
+    },
+    {
+      "id": "esc-003",
+      "enquiry_id": "enq-009-q7r8",
+      "channel": "email",
+      "customer_name": "Liam Foster",
+      "reason": "Billing discrepancy reported — customer charged twice for annual subscription",
+      "urgency": "medium",
+      "message_preview": "I've been charged twice this month. My bank statement shows two transactions...",
+      "created_at": "2026-05-23T07:20:00Z"
+    },
+    {
+      "id": "esc-004",
+      "enquiry_id": "enq-010-s9t0",
+      "channel": "whatsapp",
+      "customer_name": "Sofia Andersson",
+      "reason": "Regulatory compliance question — needs legal team review before response",
+      "urgency": "medium",
+      "message_preview": "We need GDPR compliance documentation before we can proceed with the contract...",
+      "created_at": "2026-05-23T05:45:00Z"
+    }
+  ],
+  "total": 4,
+  "page": 1
+}

@@ -1,0 +1,173 @@
+{
+  "data": [
+    {
+      "id": "enq-001-a1b2",
+      "channel": "whatsapp",
+      "customer_name": "Sarah Mitchell",
+      "message": "Hi, I'd like to know about your pricing plans for the enterprise tier. We have a team of 50+ people.",
+      "status": "qualified",
+      "sop_matched": "Pricing Inquiry",
+      "suggested_response": "Thank you for your interest! Our pricing starts at $99/month for the Starter plan. I'd be happy to walk you through our plans and find the best fit for your needs. Would you like to schedule a quick call?",
+      "escalation_reason": null,
+      "created_at": "2026-05-23T08:15:00Z",
+      "updated_at": "2026-05-23T08:15:02Z",
+      "messages": [
+        { "id": "msg-001", "sender": "customer", "text": "Hi, I'd like to know about your pricing plans for the enterprise tier. We have a team of 50+ people.", "timestamp": "2026-05-23T08:15:00Z" },
+        { "id": "msg-002", "sender": "ai", "text": "Thank you for your interest! Our pricing starts at $99/month for the Starter plan. I'd be happy to walk you through our plans and find the best fit for your needs. Would you like to schedule a quick call?", "timestamp": "2026-05-23T08:15:02Z" }
+      ],
+      "timeline": [
+        { "event_type": "created", "detail": "Enquiry received via WhatsApp", "created_at": "2026-05-23T08:15:00Z" },
+        { "event_type": "sop_matched", "detail": "Matched SOP: Pricing Inquiry", "created_at": "2026-05-23T08:15:01Z" },
+        { "event_type": "qualified", "detail": "Auto-qualified after SOP match", "created_at": "2026-05-23T08:15:02Z" }
+      ]
+    },
+    {
+      "id": "enq-002-c3d4",
+      "channel": "email",
+      "customer_name": "Raj Patel",
+      "message": "I want to book an appointment for a consultation next Tuesday. Please confirm availability for the morning slot.",
+      "status": "qualified",
+      "sop_matched": "Booking & Appointment",
+      "suggested_response": "I'd love to help you book an appointment! We have availability this week. Could you share your preferred date and time? I'll get that confirmed for you right away.",
+      "escalation_reason": null,
+      "created_at": "2026-05-23T07:42:00Z",
+      "updated_at": "2026-05-23T07:42:03Z",
+      "messages": [
+        { "id": "msg-003", "sender": "customer", "text": "I want to book an appointment for a consultation next Tuesday. Please confirm availability for the morning slot.", "timestamp": "2026-05-23T07:42:00Z" },
+        { "id": "msg-004", "sender": "ai", "text": "I'd love to help you book an appointment! We have availability this week. Could you share your preferred date and time? I'll get that confirmed for you right away.", "timestamp": "2026-05-23T07:42:03Z" }
+      ],
+      "timeline": [
+        { "event_type": "created", "detail": "Enquiry received via Email", "created_at": "2026-05-23T07:42:00Z" },
+        { "event_type": "sop_matched", "detail": "Matched SOP: Booking & Appointment", "created_at": "2026-05-23T07:42:02Z" },
+        { "event_type": "qualified", "detail": "Auto-qualified after SOP match", "created_at": "2026-05-23T07:42:03Z" }
+      ]
+    },
+    {
+      "id": "enq-003-e5f6",
+      "channel": "call",
+      "customer_name": "Emily Chen",
+      "message": "I have a serious complaint about my order #4521. The product arrived broken and customer service hasn't responded in 3 days.",
+      "status": "escalated",
+      "sop_matched": "Complaint Resolution",
+      "suggested_response": "I'm sorry to hear about your experience. Your satisfaction is our top priority. I've flagged this for our support team and you'll receive a detailed response within 2 hours.",
+      "escalation_reason": "VIP customer with repeated complaint — requires manager intervention",
+      "created_at": "2026-05-23T06:30:00Z",
+      "updated_at": "2026-05-23T06:35:00Z",
+      "messages": [
+        { "id": "msg-005", "sender": "customer", "text": "I have a serious complaint about my order #4521. The product arrived broken and customer service hasn't responded in 3 days.", "timestamp": "2026-05-23T06:30:00Z" },
+        { "id": "msg-006", "sender": "ai", "text": "I'm sorry to hear about your experience. Your satisfaction is our top priority. I've flagged this for our support team and you'll receive a detailed response within 2 hours.", "timestamp": "2026-05-23T06:30:02Z" },
+        { "id": "msg-007", "sender": "customer", "text": "That's what I was told last time. I need this resolved TODAY or I'm disputing the charge.", "timestamp": "2026-05-23T06:32:00Z" }
+      ],
+      "timeline": [
+        { "event_type": "created", "detail": "Enquiry received via Call", "created_at": "2026-05-23T06:30:00Z" },
+        { "event_type": "sop_matched", "detail": "Matched SOP: Complaint Resolution", "created_at": "2026-05-23T06:30:01Z" },
+        { "event_type": "qualified", "detail": "Auto-qualified after SOP match", "created_at": "2026-05-23T06:30:02Z" },
+        { "event_type": "escalated", "detail": "VIP customer with repeated complaint", "created_at": "2026-05-23T06:35:00Z" }
+      ]
+    },
+    {
+      "id": "enq-004-g7h8",
+      "channel": "whatsapp",
+      "customer_name": "David Okonkwo",
+      "message": "Can you send me the product specification sheet for the ProMax 3000? I need the technical details for our procurement team.",
+      "status": "qualified",
+      "sop_matched": "Product Information",
+      "suggested_response": "Great question! I'd be happy to share more details about our product. We offer a comprehensive suite of features including real-time analytics, automated workflows, and 24/7 support. Would you like a personalized demo?",
+      "escalation_reason": null,
+      "created_at": "2026-05-23T09:10:00Z",
+      "updated_at": "2026-05-23T09:10:02Z",
+      "messages": [
+        { "id": "msg-008", "sender": "customer", "text": "Can you send me the product specification sheet for the ProMax 3000? I need the technical details for our procurement team.", "timestamp": "2026-05-23T09:10:00Z" },
+        { "id": "msg-009", "sender": "ai", "text": "Great question! I'd be happy to share more details about our product. We offer a comprehensive suite of features including real-time analytics, automated workflows, and 24/7 support. Would you like a personalized demo?", "timestamp": "2026-05-23T09:10:02Z" }
+      ],
+      "timeline": [
+        { "event_type": "created", "detail": "Enquiry received via WhatsApp", "created_at": "2026-05-23T09:10:00Z" },
+        { "event_type": "sop_matched", "detail": "Matched SOP: Product Information", "created_at": "2026-05-23T09:10:01Z" },
+        { "event_type": "qualified", "detail": "Auto-qualified after SOP match", "created_at": "2026-05-23T09:10:02Z" }
+      ]
+    },
+    {
+      "id": "enq-005-i9j0",
+      "channel": "email",
+      "customer_name": "Priya Sharma",
+      "message": "We're interested in becoming a reseller for your products in the South Asian market. Who can I speak with about partnership opportunities?",
+      "status": "qualified",
+      "sop_matched": "Partnership & Collaboration",
+      "suggested_response": "Thank you for your interest in partnering with us! We have several partnership models available. I'll connect you with our Business Development team who can discuss the best arrangement. Expect a response within 24 hours.",
+      "escalation_reason": null,
+      "created_at": "2026-05-23T05:20:00Z",
+      "updated_at": "2026-05-23T05:20:03Z",
+      "messages": [
+        { "id": "msg-010", "sender": "customer", "text": "We're interested in becoming a reseller for your products in the South Asian market. Who can I speak with about partnership opportunities?", "timestamp": "2026-05-23T05:20:00Z" },
+        { "id": "msg-011", "sender": "ai", "text": "Thank you for your interest in partnering with us! We have several partnership models available. I'll connect you with our Business Development team who can discuss the best arrangement. Expect a response within 24 hours.", "timestamp": "2026-05-23T05:20:03Z" }
+      ],
+      "timeline": [
+        { "event_type": "created", "detail": "Enquiry received via Email", "created_at": "2026-05-23T05:20:00Z" },
+        { "event_type": "sop_matched", "detail": "Matched SOP: Partnership & Collaboration", "created_at": "2026-05-23T05:20:02Z" },
+        { "event_type": "qualified", "detail": "Auto-qualified after SOP match", "created_at": "2026-05-23T05:20:03Z" }
+      ]
+    },
+    {
+      "id": "enq-006-k1l2",
+      "channel": "whatsapp",
+      "customer_name": "James Rodriguez",
+      "message": "Hey, I saw your ad on Instagram. What's the monthly cost for 10 user licenses? Also, do you offer annual discounts?",
+      "status": "new",
+      "sop_matched": null,
+      "suggested_response": null,
+      "escalation_reason": null,
+      "created_at": "2026-05-23T09:25:00Z",
+      "updated_at": "2026-05-23T09:25:00Z",
+      "messages": [
+        { "id": "msg-012", "sender": "customer", "text": "Hey, I saw your ad on Instagram. What's the monthly cost for 10 user licenses? Also, do you offer annual discounts?", "timestamp": "2026-05-23T09:25:00Z" }
+      ],
+      "timeline": [
+        { "event_type": "created", "detail": "Enquiry received via WhatsApp", "created_at": "2026-05-23T09:25:00Z" }
+      ]
+    },
+    {
+      "id": "enq-007-m3n4",
+      "channel": "call",
+      "customer_name": "Anika Weber",
+      "message": "I need help urgently — our entire team's access has been revoked and we have a client presentation in 2 hours. This is completely unacceptable.",
+      "status": "escalated",
+      "sop_matched": null,
+      "suggested_response": null,
+      "escalation_reason": "No SOP matched — requires manual review",
+      "created_at": "2026-05-23T08:55:00Z",
+      "updated_at": "2026-05-23T08:55:03Z",
+      "messages": [
+        { "id": "msg-013", "sender": "customer", "text": "I need help urgently — our entire team's access has been revoked and we have a client presentation in 2 hours. This is completely unacceptable.", "timestamp": "2026-05-23T08:55:00Z" }
+      ],
+      "timeline": [
+        { "event_type": "created", "detail": "Enquiry received via Call", "created_at": "2026-05-23T08:55:00Z" },
+        { "event_type": "escalated", "detail": "No SOP matched — auto-escalated for manual review", "created_at": "2026-05-23T08:55:03Z" }
+      ]
+    },
+    {
+      "id": "enq-008-o5p6",
+      "channel": "email",
+      "customer_name": "Marcus Thompson",
+      "message": "Following up on our conversation last week about the demo. Can we schedule it for Thursday at 3 PM EST?",
+      "status": "followed_up",
+      "sop_matched": "Booking & Appointment",
+      "suggested_response": "I'd love to help you book an appointment! We have availability this week. Could you share your preferred date and time?",
+      "escalation_reason": null,
+      "created_at": "2026-05-23T04:10:00Z",
+      "updated_at": "2026-05-23T07:00:00Z",
+      "messages": [
+        { "id": "msg-014", "sender": "customer", "text": "Following up on our conversation last week about the demo. Can we schedule it for Thursday at 3 PM EST?", "timestamp": "2026-05-23T04:10:00Z" },
+        { "id": "msg-015", "sender": "ai", "text": "I'd love to help you book an appointment! We have availability this week. Could you share your preferred date and time?", "timestamp": "2026-05-23T04:10:03Z" },
+        { "id": "msg-016", "sender": "customer", "text": "Thursday 3 PM works best for us. Please send the calendar invite.", "timestamp": "2026-05-23T06:00:00Z" }
+      ],
+      "timeline": [
+        { "event_type": "created", "detail": "Enquiry received via Email", "created_at": "2026-05-23T04:10:00Z" },
+        { "event_type": "sop_matched", "detail": "Matched SOP: Booking & Appointment", "created_at": "2026-05-23T04:10:02Z" },
+        { "event_type": "qualified", "detail": "Auto-qualified after SOP match", "created_at": "2026-05-23T04:10:03Z" },
+        { "event_type": "followup_scheduled", "detail": "Follow-up scheduled in 30 minutes", "created_at": "2026-05-23T07:00:00Z" }
+      ]
+    }
+  ],
+  "total": 8,
+  "page": 1
+}

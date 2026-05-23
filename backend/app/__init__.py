@@ -1,0 +1,1 @@
+"""Closira backend application package."""
