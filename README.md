@@ -683,16 +683,14 @@ The schema is deliberately API-ready: field names match the FastAPI response mod
 > To capture your own screenshots, run `npx expo start` and use Expo Go on a physical device or simulator.
 
 ### Dashboard Screen
-![Dashboard Screen](docs/screenshots/dashboard_1.jpeg)
-
-![Dashboard Screen 2](docs/screenshots/dashboard_2.jpeg)
+<img src="docs/screenshots/dashboard_1.jpeg" width="280" />&nbsp;&nbsp;&nbsp;&nbsp;<img src="docs/screenshots/dashboard_2.jpeg" width="280" />
 
 Shows the date-aware header, 2×2 stat grid (Total Leads, Unhandled, Escalations, Follow-ups Due), quick-action cards, and recent activity feed.
 
 ---
 
 ### Leads Screen
-![Leads Screen](docs/screenshots/leads.jpeg)
+<img src="docs/screenshots/leads.jpeg" width="280" />
 
 Shows the FlatList with filter pills (All / New / Escalated), each card displaying a channel badge (WhatsApp green, Email blue, Call amber), customer name, message preview, relative time, and status pill.
 
@@ -706,16 +704,14 @@ Shows active escalation cards with red left accent bar, pulsing urgency dots, re
 ---
 
 ### Follow-ups Screen
-![Follow-ups Screen](docs/screenshots/followups.jpeg)
+<img src="docs/screenshots/followups.jpeg" width="280" />
 
 Shows task cards with formatted due times and the Mark Done animation (strikethrough → fade → remove).
 
 ---
 
 ### Conversation Detail Screen
-![Conversation Detail Screen](docs/screenshots/conversation_detail_1.jpeg)
-
-![Conversation Detail Screen 2](docs/screenshots/conversation_detail_2.jpeg)
+<img src="docs/screenshots/conversation_detail_1.jpeg" width="280" />&nbsp;&nbsp;&nbsp;&nbsp;<img src="docs/screenshots/conversation_detail_2.jpeg" width="280" />
 
 Shows the message thread (customer left grey, AI right indigo), SOP Matched info box, AI Summary box with "AUTO-GENERATED" badge, and the vertical status timeline with coloured icon dots.
 
