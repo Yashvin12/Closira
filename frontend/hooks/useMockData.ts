@@ -1,15 +1,19 @@
 /**
- * Custom hook for loading and managing mock data.
+ * useMockData — drop-in hook that now reads from AppDataContext.
  *
- * This hook now acts as a thin wrapper around MockDataContext.
- * By using context, we ensure that mutations (like resolving an
- * escalation) update the single source of truth and instantly
- * reflect across all tabs (e.g. Dashboard counts).
+ * All existing screen imports (useMockData, type Enquiry, etc.) continue
+ * to work without any changes. This file is the only change needed to
+ * wire the new live-data context into all existing screens.
+ *
+ * The hook now returns:
+ * - All existing fields: enquiries, escalations, followups, resolveEscalation,
+ *   markFollowUpDone, getEnquiryById
+ * - New fields: isLive, isLoading, submitNewEnquiry, refresh
  */
 
-import { useMockDataContext } from '../context/MockDataContext';
+import { useAppDataContext } from '../context/AppDataContext';
 
-// Re-export all types so existing imports in components don't break
+// Re-export all types so existing component imports remain valid
 export type {
   Message,
   TimelineEvent,
@@ -20,10 +24,11 @@ export type {
 } from '../context/MockDataContext';
 
 /**
- * Hook that provides typed mock data and mutation helpers from the shared context.
+ * Hook that provides typed app data and mutation helpers from the shared context.
+ * Now backed by the live backend (with automatic mock fallback).
  *
- * @returns Object with data arrays and mutation functions.
+ * @returns Object with data arrays, mutation functions, and live-status flags.
  */
 export function useMockData() {
-  return useMockDataContext();
+  return useAppDataContext();
 }

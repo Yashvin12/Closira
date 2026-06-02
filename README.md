@@ -39,11 +39,12 @@
 
 Closira handles inbound customer enquiries across **WhatsApp, Email, and Phone**. When a new enquiry arrives:
 
-1. The **REST API** accepts it, persists it, and returns a `job_id` immediately (non-blocking).
-2. A **background task** runs SOP keyword matching against 5 pre-defined procedures.
-3. If a match is found → the enquiry is `qualified` with a suggested response.
-4. If no match → the enquiry is **auto-escalated** for human review.
-5. Business owners monitor all activity via the **React Native mobile dashboard**.
+1. The **REST API** accepts it, persists it, and synchronously runs the SOP keyword matching engine.
+2. The SOP engine evaluates 8 pre-defined procedures using word-boundary-aware regex and keyword confidence scoring.
+3. If a match is found → the enquiry is immediately `qualified` with a suggested response.
+4. If no match → the enquiry is **auto-escalated** (status `escalated`) for human review.
+5. In either case, the API returns the result (201 Created) containing `enquiry_id`, `status`, `sop_matched`, and `suggested_response` synchronously, preventing polling race conditions.
+6. Business owners monitor all activity, resolve active escalations, and schedule/complete follow-ups via the **React Native mobile dashboard**.
 
 ---
 
@@ -279,7 +280,7 @@ curl http://localhost:8000/health
 
 ### `POST /enquiry`
 
-Creates a new inbound customer enquiry. Returns a `job_id` immediately and fires SOP matching in the background — the endpoint **never blocks**.
+Creates a new inbound customer enquiry, runs the SOP matching engine synchronously, and returns the result immediately.
 
 ```bash
 curl -X POST http://localhost:8000/enquiry \
@@ -291,12 +292,25 @@ curl -X POST http://localhost:8000/enquiry \
   }'
 ```
 
-**202 Accepted:**
+**201 Created (Matched SOP):**
 ```json
 {
-  "job_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "status": "new",
-  "message": "Enquiry received. Processing in background."
+  "enquiry_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "status": "qualified",
+  "sop_matched": "Pricing Inquiry",
+  "suggested_response": "Thank you for your interest! Our pricing starts at $99/month for the Starter plan. I'd be happy to walk you through our plans and find the best fit for your needs. Would you like to schedule a quick call?",
+  "message": "Enquiry processed — matched SOP: Pricing Inquiry"
+}
+```
+
+**201 Created (No SOP match — auto-escalated):**
+```json
+{
+  "enquiry_id": "b2c3d4e5-f678-9012-bcde-f1234567890a",
+  "status": "escalated",
+  "sop_matched": null,
+  "suggested_response": null,
+  "message": "Enquiry processed — no SOP match, escalated for review."
 }
 ```
 
@@ -434,6 +448,115 @@ curl http://localhost:8000/enquiry/a1b2c3d4-e5f6-7890-abcd-ef1234567890/history
 
 ---
 
+### `POST /enquiry/{id}/resolve`
+
+Marks an escalated enquiry as resolved. The enquiry must be in `escalated` status.
+
+```bash
+curl -X POST http://localhost:8000/enquiry/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resolve
+```
+
+**200 OK:**
+```json
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "channel": "whatsapp",
+  "customer_name": "Sarah Mitchell",
+  "message": "Hi, I would like to know about your pricing plans...",
+  "status": "resolved",
+  "sop_matched": "Pricing Inquiry",
+  "suggested_response": "Thank you for your interest...",
+  "escalation_reason": "Manual escalation",
+  "created_at": "2025-01-15T10:30:00",
+  "updated_at": "2025-01-15T10:32:00"
+}
+```
+
+---
+
+### `POST /enquiry/{id}/complete-followup`
+
+Marks a follow-up task as completed/resolved. The enquiry must be in `followed_up` status.
+
+```bash
+curl -X POST http://localhost:8000/enquiry/a1b2c3d4-e5f6-7890-abcd-ef1234567890/complete-followup
+```
+
+**200 OK:**
+```json
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "channel": "whatsapp",
+  "customer_name": "Sarah Mitchell",
+  "message": "Hi, I would like to know about your pricing plans...",
+  "status": "resolved",
+  "sop_matched": "Pricing Inquiry",
+  "suggested_response": "Thank you for your interest...",
+  "escalation_reason": null,
+  "created_at": "2025-01-15T10:30:00",
+  "updated_at": "2025-01-15T10:35:00"
+}
+```
+
+---
+
+### `GET /escalations`
+
+Returns all currently escalated enquiries with their urgency level inferred from the escalation reason.
+
+```bash
+curl http://localhost:8000/escalations
+```
+
+**200 OK:**
+```json
+{
+  "data": [
+    {
+      "id": "esc-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "enquiry_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "channel": "whatsapp",
+      "customer_name": "Sarah Mitchell",
+      "reason": "VIP account holder requesting immediate attention.",
+      "urgency": "high",
+      "message_preview": "Hi, I would like to know about your pricing plans...",
+      "created_at": "2025-01-15T10:30:00"
+    }
+  ],
+  "total": 1
+}
+```
+
+---
+
+### `GET /followups`
+
+Returns all pending follow-up enquiries with dynamic due dates (approximated as 30 minutes from booking).
+
+```bash
+curl http://localhost:8000/followups
+```
+
+**200 OK:**
+```json
+{
+  "data": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "enquiry_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "customer_name": "Sarah Mitchell",
+      "channel": "whatsapp",
+      "message_preview": "Hi, I would like to know about your pricing plans...",
+      "due_at": "2025-01-15T11:00:00",
+      "status": "pending"
+    }
+  ],
+  "total": 1
+}
+```
+
+---
+
 ## 7. Database Schema & Reasoning
 
 ### Schema
@@ -448,7 +571,7 @@ CREATE TABLE enquiries (
     status              TEXT NOT NULL DEFAULT 'new',
                                                    -- 'new' | 'qualified' | 'escalated'
                                                    -- | 'followed_up' | 'resolved'
-    sop_matched         TEXT,                      -- SOP name (null until background task runs)
+    sop_matched         TEXT,                      -- SOP name (null until SOP matched)
     suggested_response  TEXT,                      -- Response template (null until matched)
     escalation_reason   TEXT,                      -- Reason text (null unless escalated)
     created_at          DATETIME NOT NULL,         -- UTC, set at creation
@@ -488,55 +611,39 @@ SQLite is the right choice for this assignment because:
 
 ---
 
-## 8. BackgroundTasks vs Celery — Decision
+## 8. Synchronous SOP Matching vs Background Processing Decision
 
-**We chose FastAPI's built-in `BackgroundTasks`.**
+**We chose synchronous matching in the API route.**
 
-Here is the reasoning, with the trade-offs acknowledged:
+Initially, the project was designed to return a response immediately and run SOP keyword matching in a background task (`BackgroundTasks`). However, we migrated this to synchronous execution because:
 
-| Factor | BackgroundTasks | Celery |
-|--------|----------------|--------|
-| Infrastructure | None (zero deps) | Redis or RabbitMQ broker + separate worker process |
-| SQLite compatibility | ✅ Single-process, no write lock contention | ❌ Multiple workers compete for same SQLite file |
-| SOP matching cost | Microseconds (substring check) | Disproportionate for CPU-trivial work |
-| Retry / DLQ | ❌ No built-in retry | ✅ Full retry, dead-letter queues |
-| Setup for new engineer | `pip install -r requirements.txt` | Install Redis, configure broker, run worker separately |
-
-**Concrete reasons for this assignment:**
-
-1. **SQLite + concurrent writes.** Celery spawns multiple worker processes. SQLite's write locking means concurrent workers would deadlock or error on simultaneous enquiry processing. `BackgroundTasks` runs in-process — the event loop handles one task at a time, avoiding lock contention entirely.
-
-2. **Work is CPU-trivial.** SOP matching is a lowercase-and-substring-check operation that completes in under a millisecond. Using a distributed task queue for this is architecturally equivalent to driving a nail with a sledgehammer.
-
-3. **Zero infrastructure dependency.** No Redis, no RabbitMQ, no separate `celery -A app worker` process. The application is `pip install` → `uvicorn` — that's it. For an intern prototype, operational simplicity is a feature.
-
-**When to migrate to Celery:**
-- The SOP matcher is replaced with an LLM API call (seconds of latency — now I/O-bound, BackgroundTasks holds the event loop)
-- PostgreSQL replaces SQLite (proper concurrent write support)
-- Horizontal scaling is needed across multiple API server instances
-- Retry logic and dead-letter queues become a requirement
-
-The worker (`enquiry_processor.py`) is fully decoupled from the FastAPI route and exposes a `set_session_factory()` hook for test injection — migrating the function body to a Celery task would require minimal code changes.
+1. **Sub-millisecond latency:** SOP matching is a CPU-trivial, word-boundary regex keyword check that completes in under 1 millisecond. Using background task workers adds overhead without any latency benefit.
+2. **Race condition prevention:** When the React Native frontend creates a new lead and immediately polls or updates the leads list, a background task could introduce a race condition where the lead is still marked as `new` or `pending` instead of `qualified`/`escalated`. Synchronous execution guarantees the frontend receives the final state (e.g., `qualified` with a suggested response) in the HTTP response.
+3. **Decoupled code:** The matching engine is fully isolated in `app/services/sop_matcher.py`, which is still easy to migrate to an asynchronous worker (like Celery) if we upgrade to external LLM calls.
 
 ---
 
 ## 9. SOP Matching Logic
 
-Five SOPs are defined in [`app/services/sop_matcher.py`](backend/app/services/sop_matcher.py).
+Eight SOPs are defined in [`app/services/sop_matcher.py`](backend/app/services/sop_matcher.py) to cover all common CRM categories.
 
-| SOP Name | Trigger Keywords | Example Message |
+| SOP Name | Trigger Keywords | Suggested Response Summary |
 |---|---|---|
-| **Pricing Inquiry** | price, pricing, cost, rate, fee, charge, quote | "What are your pricing plans for the enterprise tier?" |
-| **Booking & Appointment** | book, booking, appointment, schedule, reserve, availability | "I want to book an appointment for next Tuesday." |
-| **Complaint Resolution** | complaint, issue, problem, unhappy, dissatisfied, broken, defect, refund | "I have a complaint about my order #4521." |
-| **Product Information** | feature, product, service, detail, specification, demo, trial | "Can you send me the product specification sheet?" |
-| **Partnership & Collaboration** | partner, partnership, collaborate, wholesale, reseller, affiliate | "We're interested in becoming a reseller." |
+| **Pricing Inquiry** | price, pricing, cost, rate, fee, charge, quote, subscription, plan, tier, discount, coupon, promo, budget, afford, expensive, cheap, license | Quotes starting price of $99/mo and offers call. |
+| **Booking & Appointment** | book, booking, appointment, schedule, reserve, availability, calendar, slot, meeting, consultation, demo, session, reschedule | Asks for preferred date and time to confirm. |
+| **Complaint Resolution** | complaint, issue, problem, unhappy, dissatisfied, broken, defect, damaged, frustrated, unacceptable, terrible, worst, disappointed | Apologizes, promises support reply in 2 hours, requests order number. |
+| **Product Information** | feature, product, service, detail, specification, trial, capability, integrate, integration, how does, what does, tell me about, information | Details analytics, workflows, 24/7 support, offers demo. |
+| **Partnership & Collaboration** | partner, partnership, collaborate, collaboration, wholesale, reseller, affiliate, agency, white label, referral, commission, joint venture | Refers to BD team, promises reply in 24 hours. |
+| **Billing & Payment** | bill, billing, invoice, payment, charged, charge, refund, overcharged, double charged, transaction, receipt, credit card, bank, statement, subscription | Apologizes for billing issue, escalates to finance, requests invoice/email. |
+| **Technical Support** | bug, error, crash, not working, doesn't work, login, password, access, revoked, locked out, outage, down, slow, glitch, fix, troubleshoot, reset, update, install, setup | Offers troubleshooting and escalation to dev team. |
+| **General Inquiry** | hello, hi, hey, help, question, ask, know, curious, wondering, inquiry, enquiry, contact, reach, talk, speak, support, assist | Greeting, asks for clarification of needs. |
 
-**Algorithm:**  
-`message.lower()` → iterate SOPs in definition order → check if any keyword is a substring → **first match wins** → return `{ name, suggested_response }`.  
-**No match** → return `None` → worker calls `auto_escalate_enquiry()` → status set to `escalated` with reason `"No SOP matched — requires manual review"`.
+### Match Algorithm & Optimization
 
-**Limitations:** Simple substring matching means "price" would match "mispriced" — a real implementation would use word-boundary tokenisation or an LLM classifier.
+1. **Word-Boundary Matching:** Instead of simple substring matching (which would incorrectly match "price" in "sur**price**" or "cost" in "ac**cost**"), keywords are compiled into regular expressions with word boundary tokens (`\bkeyword\b`), matched case-insensitively.
+2. **Confidence Scoring:** The message is checked against all 8 SOPs. Rather than picking the first match, we count the number of keyword hits for each SOP. The SOP with the highest hit count (confidence score) is selected.
+3. **Tie-Breaker:** In case of scoring ties, the SOP listed first (more specific categories) is preferred.
+4. **No Match → Auto-Escalation:** If zero keywords are matched across all SOPs, the enquiry is marked as `escalated` with the reason `"No SOP matched — requires manual review"`.
 
 ---
 

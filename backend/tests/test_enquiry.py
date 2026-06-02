@@ -6,8 +6,8 @@ from fastapi.testclient import TestClient
 class TestCreateEnquiry:
     """Test suite for POST /enquiry."""
 
-    def test_create_enquiry_returns_202(self, client: TestClient) -> None:
-        """POST /enquiry should return 202 Accepted with a job_id."""
+    def test_create_enquiry_returns_201(self, client: TestClient) -> None:
+        """POST /enquiry should return 201 Created with an enquiry_id and SOP match."""
         response = client.post(
             "/enquiry",
             json={
@@ -16,11 +16,11 @@ class TestCreateEnquiry:
                 "message": "What are your pricing plans?",
             },
         )
-        assert response.status_code == 202
+        assert response.status_code == 201
         body = response.json()
-        assert "job_id" in body
-        assert body["status"] == "new"
-        assert body["message"] == "Enquiry received. Processing in background."
+        assert "enquiry_id" in body
+        assert body["status"] in ("qualified", "escalated")
+        assert "message" in body
 
     def test_create_enquiry_with_email_channel(self, client: TestClient) -> None:
         """POST /enquiry should accept 'email' as a valid channel."""
@@ -32,7 +32,7 @@ class TestCreateEnquiry:
                 "message": "I'd like to book a demo.",
             },
         )
-        assert response.status_code == 202
+        assert response.status_code == 201
 
     def test_create_enquiry_with_call_channel(self, client: TestClient) -> None:
         """POST /enquiry should accept 'call' as a valid channel."""
@@ -44,7 +44,7 @@ class TestCreateEnquiry:
                 "message": "I have a complaint about my order.",
             },
         )
-        assert response.status_code == 202
+        assert response.status_code == 201
 
     def test_create_enquiry_invalid_channel(self, client: TestClient) -> None:
         """POST /enquiry should return 422 for invalid channel values."""
@@ -85,7 +85,7 @@ class TestEnquiryHistory:
         sample_enquiry: dict,
     ) -> None:
         """GET /enquiry/{id}/history should return enquiry details and timeline."""
-        enquiry_id = sample_enquiry["job_id"]
+        enquiry_id = sample_enquiry["enquiry_id"]
         response = client.get(f"/enquiry/{enquiry_id}/history")
         assert response.status_code == 200
 

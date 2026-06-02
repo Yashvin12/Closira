@@ -48,29 +48,38 @@ class EnquiryCreate(BaseModel):
 
 
 class EnquiryResponse(BaseModel):
-    """Response body for POST /enquiry (202 Accepted).
+    """Response body for POST /enquiry (201 Created).
+
+    Now returns the full processing result since SOP matching is synchronous.
 
     Attributes:
-        job_id: The unique identifier for the created enquiry / background job.
-        status: Current status of the enquiry.
+        enquiry_id: The unique identifier for the created enquiry.
+        status: Final status after SOP matching (qualified or escalated).
+        sop_matched: Name of the matched SOP, if any.
+        suggested_response: The SOP's suggested response text, if any.
         message: Human-readable confirmation message.
     """
 
-    job_id: str = Field(..., description="Unique enquiry/job identifier (UUID)")
-    status: str = Field(..., description="Current enquiry status")
+    enquiry_id: str = Field(..., description="Unique enquiry identifier (UUID)")
+    status: str = Field(..., description="Final enquiry status after processing")
+    sop_matched: str | None = Field(None, description="Matched SOP name, if any")
+    suggested_response: str | None = Field(None, description="SOP suggested response, if any")
     message: str = Field(..., description="Human-readable confirmation")
 
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "job_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                    "status": "new",
-                    "message": "Enquiry received. Processing in background.",
+                    "enquiry_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                    "status": "qualified",
+                    "sop_matched": "Pricing Inquiry",
+                    "suggested_response": "Thank you for your interest! Our pricing starts at $99/month...",
+                    "message": "Enquiry processed — matched SOP: Pricing Inquiry",
                 }
             ]
         }
     }
+
 
 
 class EnquiryEventResponse(BaseModel):
@@ -164,3 +173,33 @@ class EnquiryHistoryResponse(BaseModel):
             ]
         }
     }
+
+
+class EnquiryListItem(BaseModel):
+    """A single enquiry in the list response — used by GET /enquiries.
+
+    Mirrors the frontend TypeScript Enquiry interface so the frontend
+    can consume it directly without transformation.
+    """
+
+    id: str
+    channel: str
+    customer_name: str
+    message: str
+    status: str
+    sop_matched: str | None
+    suggested_response: str | None
+    ai_summary: str | None = None
+    escalation_reason: str | None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class EnquiryListResponse(BaseModel):
+    """Response body for GET /enquiries."""
+
+    data: list[EnquiryListItem]
+    total: int
+

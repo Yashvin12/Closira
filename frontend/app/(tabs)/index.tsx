@@ -10,7 +10,7 @@
  * - §9 persistent-nav: header contextualises which app section the user is in
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -25,6 +25,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatCard } from '../../components/cards/StatCard';
 import { ChannelBadge } from '../../components/ui/ChannelBadge';
 import { StatusPill } from '../../components/ui/StatusPill';
+import { NewEnquiryModal } from '../../components/ui/NewEnquiryModal';
 import { useMockData, type Enquiry } from '../../hooks/useMockData';
 import {
   colors,
@@ -40,13 +41,17 @@ import { getInitials, getAvatarBg, formatRelativeTime, getFormattedDate, getGree
 
 
 
+
 /**
  * Dashboard screen component.
  */
 export default function DashboardScreen(): React.JSX.Element {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { enquiries, escalations, followups } = useMockData();
+  const data = useMockData();
+  const { enquiries, escalations, followups } = data;
+  const isLive = (data as any).isLive ?? false;
+  const [modalVisible, setModalVisible] = useState(false);
 
   const recentEnquiries = useMemo(() => enquiries.slice(0, 5), [enquiries]);
   const todayLeads = enquiries.length;
@@ -92,6 +97,7 @@ export default function DashboardScreen(): React.JSX.Element {
   };
 
   return (
+  <>
     <ScrollView
       style={styles.container}
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.lg }]}
@@ -210,6 +216,28 @@ export default function DashboardScreen(): React.JSX.Element {
         />
       </View>
     </ScrollView>
+
+    {/* ─── FAB ─────────────────────────────────────────────────── */}
+    <Pressable
+      onPress={() => setModalVisible(true)}
+      style={[styles.fab, { bottom: insets.bottom + spacing.lg + 64 }]}
+      accessibilityRole="button"
+      accessibilityLabel="Add new enquiry"
+    >
+      <Ionicons name="add" size={iconSize.lg} color={colors.white} />
+    </Pressable>
+
+    {/* ─── Live / Demo Badge ─────────────────────────────────── */}
+    <View style={[styles.liveBadge, { bottom: insets.bottom + spacing.lg + 64 + 64 }]}>
+      <View style={[styles.liveDot, { backgroundColor: isLive ? colors.success : colors.textTertiary }]} />
+      <Text style={styles.liveBadgeText}>{isLive ? 'LIVE' : 'DEMO'}</Text>
+    </View>
+
+    <NewEnquiryModal
+      visible={modalVisible}
+      onClose={() => setModalVisible(false)}
+    />
+  </>
   );
 }
 
@@ -406,5 +434,47 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginHorizontal: spacing.md,
+  },
+
+  // ─── FAB ──────────────────────────────────────────────────────
+  fab: {
+    position: 'absolute',
+    right: spacing.lg,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...shadows.lg,
+    borderWidth: 2,
+    borderColor: 'rgba(99,102,241,0.4)',
+  },
+
+  // ─── Live Badge ───────────────────────────────────────────────
+  liveBadge: {
+    position: 'absolute',
+    right: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadows.sm,
+  },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  liveBadgeText: {
+    fontSize: 9,
+    fontFamily: fontFamily.bold,
+    color: colors.textTertiary,
+    letterSpacing: 0.8,
   },
 });

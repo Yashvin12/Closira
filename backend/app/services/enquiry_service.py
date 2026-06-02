@@ -342,3 +342,149 @@ def auto_escalate_enquiry(
     )
 
     return enquiry
+
+
+def list_enquiries(
+    db: Session,
+    status_filter: str | None = None,
+) -> list[Enquiry]:
+    """Return all enquiries ordered newest first, with optional status filter.
+
+    Args:
+        db: Active database session.
+        status_filter: If provided, only return enquiries with this status.
+
+    Returns:
+        List of Enquiry ORM instances.
+    """
+    query = db.query(Enquiry)
+    if status_filter:
+        query = query.filter(Enquiry.status == status_filter)
+    return query.order_by(Enquiry.created_at.desc()).all()
+
+
+def list_escalations(db: Session) -> list[Enquiry]:
+    """Return all escalated enquiries (status='escalated'), newest first.
+
+    Args:
+        db: Active database session.
+
+    Returns:
+        List of Enquiry ORM instances with status 'escalated'.
+    """
+    return (
+        db.query(Enquiry)
+        .filter(Enquiry.status == "escalated")
+        .order_by(Enquiry.created_at.desc())
+        .all()
+    )
+
+
+def list_followups(db: Session) -> list[Enquiry]:
+    """Return all follow-up enquiries (status='followed_up'), newest first.
+
+    Args:
+        db: Active database session.
+
+    Returns:
+        List of Enquiry ORM instances with status 'followed_up'.
+    """
+    return (
+        db.query(Enquiry)
+        .filter(Enquiry.status == "followed_up")
+        .order_by(Enquiry.created_at.desc())
+        .all()
+    )
+
+
+def resolve_enquiry(db: Session, enquiry_id: str) -> Enquiry:
+    """Mark an escalated enquiry as resolved.
+
+    Args:
+        db: Active database session.
+        enquiry_id: The UUID of the enquiry to resolve.
+
+    Returns:
+        The updated Enquiry ORM instance.
+
+    Raises:
+        NotFoundError: If the enquiry does not exist.
+        BusinessRuleError: If the enquiry is not escalated.
+    """
+    enquiry = get_enquiry_or_raise(db, enquiry_id)
+
+    if enquiry.status != "escalated":
+        raise BusinessRuleError(
+            f"Cannot resolve enquiry {enquiry_id} — status is '{enquiry.status}'. "
+            "Only escalated enquiries can be resolved."
+        )
+
+    enquiry.status = "resolved"
+    enquiry.updated_at = datetime.now(timezone.utc)
+
+    event = EnquiryEvent(
+        enquiry_id=enquiry.id,
+        event_type="resolved",
+        detail=json.dumps({"resolved_from": "escalated"}),
+    )
+    db.add(event)
+    db.commit()
+    db.refresh(enquiry)
+
+    logger.info(
+        "Enquiry resolved",
+        extra={
+            "event": "enquiry_resolved",
+            "enquiry_id": enquiry.id,
+            "detail": "Resolved from escalated status",
+        },
+    )
+
+    return enquiry
+
+
+def complete_followup(db: Session, enquiry_id: str) -> Enquiry:
+    """Mark a followed-up enquiry as resolved/completed.
+
+    Args:
+        db: Active database session.
+        enquiry_id: The UUID of the enquiry to complete.
+
+    Returns:
+        The updated Enquiry ORM instance.
+
+    Raises:
+        NotFoundError: If the enquiry does not exist.
+        BusinessRuleError: If the enquiry is not in followed_up status.
+    """
+    enquiry = get_enquiry_or_raise(db, enquiry_id)
+
+    if enquiry.status != "followed_up":
+        raise BusinessRuleError(
+            f"Cannot complete follow-up for enquiry {enquiry_id} — "
+            f"status is '{enquiry.status}'. Only followed_up enquiries can be completed."
+        )
+
+    enquiry.status = "resolved"
+    enquiry.updated_at = datetime.now(timezone.utc)
+
+    event = EnquiryEvent(
+        enquiry_id=enquiry.id,
+        event_type="resolved",
+        detail=json.dumps({"resolved_from": "followed_up"}),
+    )
+    db.add(event)
+    db.commit()
+    db.refresh(enquiry)
+
+    logger.info(
+        "Follow-up completed",
+        extra={
+            "event": "followup_completed",
+            "enquiry_id": enquiry.id,
+            "detail": "Resolved from followed_up status",
+        },
+    )
+
+    return enquiry
+

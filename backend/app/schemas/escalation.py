@@ -4,6 +4,8 @@ POST /enquiry/{id}/escalate is idempotent — escalating an already-escalated
 enquiry returns 409.
 """
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -49,3 +51,30 @@ class EscalateResponse(BaseModel):
             ]
         }
     }
+
+
+class EscalationListItem(BaseModel):
+    """A single escalation in GET /escalations — mirrors the frontend Escalation interface.
+
+    Derived from an escalated Enquiry record. Urgency is inferred from
+    escalation_reason keywords ('urgent', 'vip', 'critical' → high).
+    """
+
+    id: str
+    enquiry_id: str
+    channel: str
+    customer_name: str
+    reason: str
+    urgency: str  # 'high' | 'medium'
+    message_preview: str
+    created_at: datetime
+
+    model_config = {"from_attributes": False}
+
+
+class EscalationListResponse(BaseModel):
+    """Response body for GET /escalations."""
+
+    data: list[EscalationListItem]
+    total: int
+

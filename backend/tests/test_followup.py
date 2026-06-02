@@ -12,7 +12,7 @@ class TestFollowUp:
         sample_enquiry: dict,
     ) -> None:
         """POST /enquiry/{id}/followup should return 200 with confirmation."""
-        enquiry_id = sample_enquiry["job_id"]
+        enquiry_id = sample_enquiry["enquiry_id"]
         response = client.post(
             f"/enquiry/{enquiry_id}/followup",
             json={"delay_minutes": 30},
@@ -29,7 +29,7 @@ class TestFollowUp:
         sample_enquiry: dict,
     ) -> None:
         """Follow-up should accept an optional message_template."""
-        enquiry_id = sample_enquiry["job_id"]
+        enquiry_id = sample_enquiry["enquiry_id"]
         response = client.post(
             f"/enquiry/{enquiry_id}/followup",
             json={
@@ -45,7 +45,7 @@ class TestFollowUp:
         sample_enquiry: dict,
     ) -> None:
         """Follow-up should return 422 for delay_minutes < 1."""
-        enquiry_id = sample_enquiry["job_id"]
+        enquiry_id = sample_enquiry["enquiry_id"]
         response = client.post(
             f"/enquiry/{enquiry_id}/followup",
             json={"delay_minutes": 0},

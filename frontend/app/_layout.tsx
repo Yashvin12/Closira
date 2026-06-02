@@ -17,7 +17,7 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { colors, fontFamily, fontWeight, fontSize } from '../constants/theme';
-import { MockDataProvider } from '../context/MockDataContext';
+import { AppDataProvider } from '../context/AppDataContext';
 
 /**
  * Root layout component — loads fonts, provides nav stack and status bar.
@@ -35,7 +35,7 @@ export default function RootLayout(): React.JSX.Element | null {
   }
 
   return (
-    <MockDataProvider>
+    <AppDataProvider>
       {/* Light icons on dark background */}
       <StatusBar style="light" />
       <Stack
@@ -61,6 +61,6 @@ export default function RootLayout(): React.JSX.Element | null {
           }}
         />
       </Stack>
-    </MockDataProvider>
+    </AppDataProvider>
   );
 }

@@ -3,6 +3,8 @@
 POST /enquiry/{id}/followup accepts a delay and optional message template.
 """
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -54,3 +56,29 @@ class FollowUpResponse(BaseModel):
             ]
         }
     }
+
+
+class FollowUpListItem(BaseModel):
+    """A single follow-up in GET /followups — mirrors the frontend FollowUp interface.
+
+    Derived from a followed_up Enquiry record. due_at is approximated as
+    updated_at + 30 minutes since the actual delay isn't persisted separately.
+    """
+
+    id: str
+    enquiry_id: str
+    customer_name: str
+    channel: str
+    message_preview: str
+    due_at: datetime
+    status: str  # 'pending' | 'done'
+
+    model_config = {"from_attributes": False}
+
+
+class FollowUpListResponse(BaseModel):
+    """Response body for GET /followups."""
+
+    data: list[FollowUpListItem]
+    total: int
+

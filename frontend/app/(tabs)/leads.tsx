@@ -24,12 +24,14 @@ import {
   borderRadius,
 } from '../../constants/theme';
 
-type FilterType = 'all' | 'new' | 'escalated';
+type FilterType = 'all' | 'new' | 'qualified' | 'escalated' | 'followed_up';
 
 const FILTERS: { key: FilterType; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'new', label: 'New' },
+  { key: 'qualified', label: 'Qualified' },
   { key: 'escalated', label: 'Escalated' },
+  { key: 'followed_up', label: 'Followed Up' },
 ];
 
 /**
@@ -44,7 +46,9 @@ export default function LeadsScreen(): React.JSX.Element {
     () => ({
       all: enquiries.length,
       new: enquiries.filter((e) => e.status === 'new').length,
+      qualified: enquiries.filter((e) => e.status === 'qualified').length,
       escalated: enquiries.filter((e) => e.status === 'escalated').length,
+      followed_up: enquiries.filter((e) => e.status === 'followed_up').length,
     }),
     [enquiries]
   );

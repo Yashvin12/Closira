@@ -12,7 +12,7 @@ class TestEscalation:
         sample_enquiry: dict,
     ) -> None:
         """POST /enquiry/{id}/escalate should return 200 on first escalation."""
-        enquiry_id = sample_enquiry["job_id"]
+        enquiry_id = sample_enquiry["enquiry_id"]
         response = client.post(
             f"/enquiry/{enquiry_id}/escalate",
             json={"reason": "VIP customer needs immediate attention."},
@@ -29,7 +29,7 @@ class TestEscalation:
         sample_enquiry: dict,
     ) -> None:
         """Escalating an already-escalated enquiry should return 409."""
-        enquiry_id = sample_enquiry["job_id"]
+        enquiry_id = sample_enquiry["enquiry_id"]
 
         # First escalation
         client.post(
@@ -52,7 +52,7 @@ class TestEscalation:
         sample_enquiry: dict,
     ) -> None:
         """Escalation with empty reason should return 422."""
-        enquiry_id = sample_enquiry["job_id"]
+        enquiry_id = sample_enquiry["enquiry_id"]
         response = client.post(
             f"/enquiry/{enquiry_id}/escalate",
             json={"reason": ""},
