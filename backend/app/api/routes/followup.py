@@ -2,11 +2,12 @@
 
 POST /enquiry/{id}/followup — accepts delay_minutes (int, min 1) and
 optional message_template. Validates enquiry exists and is open.
+Dispatches a Celery task to fire the notification after delay_minutes.
 
 GET  /followups — returns all enquiries with status 'followed_up'.
 """
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
@@ -31,7 +32,8 @@ router = APIRouter(tags=["Follow-ups"])
     description=(
         "Schedules a follow-up message for the specified enquiry. "
         "Requires delay_minutes (minimum 1) and an optional message_template. "
-        "The enquiry must exist and be in an open state (not resolved)."
+        "The enquiry must exist and be in an open state (not resolved). "
+        "A Celery task fires the notification after the delay."
     ),
     openapi_extra={
         "requestBody": {
@@ -51,22 +53,27 @@ def schedule_followup_endpoint(
     body: FollowUpRequest,
     db: Session = Depends(get_db),
 ) -> FollowUpResponse:
-    """Schedule a follow-up for an existing enquiry.
-
-    Args:
-        enquiry_id: UUID of the enquiry to follow up on.
-        body: Validated request body with delay_minutes and optional template.
-        db: Database session (injected).
-
-    Returns:
-        FollowUpResponse confirming the scheduled follow-up.
-    """
+    """Schedule a follow-up and enqueue a Celery notification task."""
     enquiry = schedule_followup(
         db=db,
         enquiry_id=enquiry_id,
         delay_minutes=body.delay_minutes,
         message_template=body.message_template,
     )
+
+    # Dispatch notification task at the correct future time
+    try:
+        from app.tasks.enquiry_tasks import send_followup_task
+
+        eta = datetime.now(timezone.utc) + timedelta(minutes=body.delay_minutes)
+        send_followup_task.apply_async(
+            args=[enquiry.id, body.message_template],
+            eta=eta,
+        )
+    except Exception:
+        # If Redis is unavailable, the follow-up is still recorded in the DB.
+        # The Celery task is best-effort — don't fail the HTTP response.
+        pass
 
     return FollowUpResponse(
         enquiry_id=enquiry.id,
@@ -88,14 +95,7 @@ def schedule_followup_endpoint(
 def list_followups_endpoint(
     db: Session = Depends(get_db),
 ) -> FollowUpListResponse:
-    """List all pending follow-ups.
-
-    Args:
-        db: Database session (injected).
-
-    Returns:
-        FollowUpListResponse with list of follow-up items.
-    """
+    """List all pending follow-ups."""
     enquiries = list_followups(db=db)
     items = [
         FollowUpListItem(
@@ -104,11 +104,9 @@ def list_followups_endpoint(
             customer_name=e.customer_name,
             channel=e.channel,
             message_preview=e.message[:120] + ("…" if len(e.message) > 120 else ""),
-            # Approximate due_at: updated_at (when followup was scheduled) + 30 min
             due_at=e.updated_at + timedelta(minutes=30),
             status="pending",
         )
         for e in enquiries
     ]
     return FollowUpListResponse(data=items, total=len(items))
-

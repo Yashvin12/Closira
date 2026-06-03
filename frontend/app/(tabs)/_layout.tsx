@@ -1,21 +1,19 @@
 /**
  * Tab layout — bottom tab navigator with 4 screens.
  *
- * Premium tab bar features:
- * - Active tab: indigo pill indicator (20×3px) above the icon
- * - Active icon slightly larger (22) vs inactive (20)
- * - Dark surface tab bar with Slate 700 top border
- * - Inter_600SemiBold labels for crisp legibility
- * - §9 nav-state-active: indicator + colour + size all communicate active state
+ * Features:
+ * - Active tab: indigo pill indicator above icon
+ * - Sun/moon toggle in the header right for theme switching
+ * - Colors driven by ThemeContext so light/dark both work
  */
 
 import React from 'react';
-import { View, StyleSheet, ColorValue } from 'react-native';
+import { View, StyleSheet, ColorValue, Pressable } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSize, fontFamily } from '../../constants/theme';
+import { fontSize, fontFamily } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
-/** Tab icon with pill indicator above when focused. */
 function TabIcon({
   name,
   color,
@@ -25,9 +23,10 @@ function TabIcon({
   color: ColorValue;
   focused: boolean;
 }): React.JSX.Element {
+  const { colors } = useTheme();
   return (
     <View style={tabStyles.iconWrapper}>
-      {focused && <View style={tabStyles.pillIndicator} />}
+      {focused && <View style={[tabStyles.pillIndicator, { backgroundColor: colors.primary }]} />}
       <Ionicons name={name} size={focused ? 22 : 20} color={color} />
     </View>
   );
@@ -47,14 +46,23 @@ const tabStyles = StyleSheet.create({
     width: 20,
     height: 3,
     borderRadius: 2,
-    backgroundColor: colors.primary,
   },
 });
 
-/**
- * Tab navigator layout with Dashboard, Leads, Escalations, and Follow-ups.
- */
 export default function TabLayout(): React.JSX.Element {
+  const { colors, toggleTheme, isDark } = useTheme();
+
+  /** Header right — sun/moon toggle */
+  const ThemeToggle = () => (
+    <Pressable onPress={toggleTheme} style={{ marginRight: 16, padding: 4 }}>
+      <Ionicons
+        name={isDark ? 'sunny-outline' : 'moon-outline'}
+        size={22}
+        color={colors.textPrimary}
+      />
+    </Pressable>
+  );
+
   return (
     <Tabs
       screenOptions={{
@@ -65,6 +73,7 @@ export default function TabLayout(): React.JSX.Element {
           fontSize: fontSize.lg,
           color: colors.textPrimary,
         },
+        headerRight: () => <ThemeToggle />,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textTertiary,
         tabBarStyle: {

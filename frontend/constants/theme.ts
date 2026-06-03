@@ -2,17 +2,11 @@
  * Closira Design System Tokens
  *
  * ALL design tokens live here — no raw hex values in components.
- * Follows the UI/UX Pro Max skill file guidelines:
- * - Semantic color tokens (primary, secondary, error, surface, on-surface)
- * - Strict 4pt spacing grid (4, 8, 12, 16, 24, 32dp only)
- * - Consistent icon sizing tokens
- * - Font scale system with Inter from @expo-google-fonts/inter
- * - Border radius scale
- * - Z-index management layers
+ * Supports dark (default), light, and system themes via ThemeContext.
  */
 
-/** Semantic color palette — dark theme */
-export const colors = {
+/** Semantic color palette — dark theme (original, unchanged) */
+export const darkColors = {
   /** App background — Slate 900 */
   background: '#0F172A',
   /** Card / surface background — Slate 800 */
@@ -49,7 +43,7 @@ export const colors = {
   textPrimary: '#F8FAFC',
   /** Secondary text — Slate 400 */
   textSecondary: '#94A3B8',
-  /** Tertiary / disabled text — Slate 500 (improved WCAG contrast) */
+  /** Tertiary / disabled text — Slate 500 */
   textTertiary: '#64748B',
 
   /** Divider / border — Slate 700 */
@@ -60,17 +54,64 @@ export const colors = {
   /** Always-white — for text on solid colored badges */
   white: '#FFFFFF',
 
-  /** Slightly elevated inner surface — for info boxes, nested cards */
+  /** Slightly elevated inner surface */
   surfaceL2: '#263044',
 
-  // ─── Channel brand colours (badge backgrounds) ───────────────────────────
-  /** WhatsApp brand green */
+  // ─── Channel brand colours ───────────────────────────────────────────────
   whatsapp: '#25D366',
-  /** Email blue */
   email: '#3B82F6',
-  /** Call amber */
   call: '#F59E0B',
 } as const;
+
+/** Semantic color palette — light theme */
+export const lightColors = {
+  /** App background — white */
+  background: '#F8FAFC',
+  /** Card / surface background — Slate 50 */
+  surface: '#FFFFFF',
+
+  /** Primary brand — Indigo 600 (slightly darker for legibility on white) */
+  primary: '#4F46E5',
+  primaryDark: '#4338CA',
+  primaryLight: 'rgba(79,70,229,0.10)',
+
+  secondary: '#7C3AED',
+  secondaryLight: 'rgba(124,58,237,0.10)',
+
+  success: '#16A34A',
+  successLight: 'rgba(22,163,74,0.10)',
+
+  warning: '#D97706',
+  warningLight: 'rgba(217,119,6,0.10)',
+
+  danger: '#DC2626',
+  dangerLight: 'rgba(220,38,38,0.10)',
+
+  textPrimary: '#0F172A',
+  textSecondary: '#475569',
+  textTertiary: '#94A3B8',
+
+  border: '#E2E8F0',
+  borderLight: '#F1F5F9',
+
+  white: '#FFFFFF',
+  surfaceL2: '#F1F5F9',
+
+  // ─── Channel brand colours ───────────────────────────────────────────────
+  whatsapp: '#25D366',
+  email: '#3B82F6',
+  call: '#F59E0B',
+} as const;
+
+/** Union type of a resolved color palette */
+export type ColorPalette = typeof darkColors | typeof lightColors;
+
+/**
+ * Legacy export — components that haven't migrated to useTheme()
+ * still import `colors` and get the dark palette.
+ * Migrate components to useTheme() as you touch them.
+ */
+export const colors = darkColors;
 
 /**
  * Strict 4pt spacing grid.
@@ -93,93 +134,52 @@ export const spacing = {
 
 /** Consistent border radius scale */
 export const borderRadius = {
-  /** Small rounding */
   sm: 4,
-  /** Default card rounding */
   md: 8,
-  /** Pronounced rounding */
   lg: 12,
-  /** Large rounding for modals */
   xl: 16,
-  /** Full rounding for badges / pills */
   full: 9999,
 } as const;
 
-/** Icon size tokens — consistent sizing across the app */
+/** Icon size tokens */
 export const iconSize = {
-  /** 16dp — inline icons */
   sm: 16,
-  /** 20dp — standard UI icons */
   md: 20,
-  /** 24dp — navigation icons */
   lg: 24,
-  /** 28dp — prominent icons */
   xl: 28,
-  /** 32dp — feature/stat icons */
   '2xl': 32,
-  /** 48dp — empty state icons */
   '3xl': 48,
 } as const;
 
 /** Font size scale */
 export const fontSize = {
-  /** 12dp — captions, badges */
   xs: 12,
-  /** 14dp — secondary labels */
   sm: 14,
-  /** 16dp — body text */
   base: 16,
-  /** 18dp — section headers */
   lg: 18,
-  /** 20dp — card titles */
   xl: 20,
-  /** 24dp — screen headers */
   '2xl': 24,
-  /** 32dp — hero numbers */
   '3xl': 32,
 } as const;
 
-/**
- * Font weight tokens.
- * Inter ships discrete weights: 400, 600, 700.
- * Use fontFamily tokens below for proper loading via useFonts.
- */
 export const fontWeight = {
-  /** Regular body text */
   regular: '400' as const,
-  /** Semi-bold labels */
   semibold: '600' as const,
-  /** Bold headings */
   bold: '700' as const,
 };
 
-/**
- * Inter font family tokens.
- * Must match the loaded font names from @expo-google-fonts/inter.
- * Load these in the root _layout.tsx via useFonts().
- */
 export const fontFamily = {
-  /** Body text */
   regular: 'Inter_400Regular',
-  /** Labels and semi-bold UI text */
   semibold: 'Inter_600SemiBold',
-  /** Headings */
   bold: 'Inter_700Bold',
 } as const;
 
-/**
- * Letter spacing tokens — for badges, labels, and large numbers.
- */
 export const letterSpacing = {
-  /** Small-caps badge / pill text */
   badge: 0.8,
-  /** Section label */
   label: 0.4,
-  /** Large tabular numbers (negative for tighter appearance) */
   tight: -0.5,
 } as const;
 
-/** Z-index layers for elevation management */
 export const zIndex = {
   base: 0,
   card: 10,
@@ -189,7 +189,6 @@ export const zIndex = {
   toast: 1000,
 } as const;
 
-/** Shadow presets for dark-mode elevation (subtle glows) */
 export const shadows = {
   sm: {
     shadowColor: '#000000',
@@ -205,7 +204,6 @@ export const shadows = {
     shadowRadius: 6,
     elevation: 4,
   },
-  /** Elevated shadow for focused elements */
   lg: {
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 8 },
@@ -213,7 +211,6 @@ export const shadows = {
     shadowRadius: 12,
     elevation: 8,
   },
-  /** Accent glow — use with shadowColor matching iconColor */
   accent: {
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.35,
@@ -226,62 +223,51 @@ export const shadows = {
 // Badge / Pill metadata
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Channel badge metadata.
- * bgColor = solid brand colour, color = white (always).
- * label is UPPERCASE via textTransform in the component.
- */
 export const channelConfig = {
   whatsapp: {
     label: 'WhatsApp',
-    /** White text on coloured bg */
-    color: colors.white,
-    bgColor: colors.whatsapp,
+    color: '#FFFFFF',
+    bgColor: '#25D366',
     icon: 'logo-whatsapp' as const,
   },
   email: {
     label: 'Email',
-    color: colors.white,
-    bgColor: colors.email,
+    color: '#FFFFFF',
+    bgColor: '#3B82F6',
     icon: 'mail' as const,
   },
   call: {
     label: 'Call',
-    color: colors.white,
-    bgColor: colors.call,
+    color: '#FFFFFF',
+    bgColor: '#F59E0B',
     icon: 'call' as const,
   },
 } as const;
 
-/**
- * Status pill metadata.
- * New → blue (#6366F1), Qualified → green (#22C55E), Escalated → red (#EF4444).
- * Text is white on all solid backgrounds.
- */
 export const statusConfig = {
   new: {
     label: 'New',
-    color: colors.white,
-    bgColor: colors.primary,
+    color: '#FFFFFF',
+    bgColor: '#6366F1',
   },
   qualified: {
     label: 'Qualified',
-    color: colors.white,
-    bgColor: colors.success,
+    color: '#FFFFFF',
+    bgColor: '#22C55E',
   },
   escalated: {
     label: 'Escalated',
-    color: colors.white,
-    bgColor: colors.danger,
+    color: '#FFFFFF',
+    bgColor: '#EF4444',
   },
   followed_up: {
     label: 'Followed Up',
-    color: colors.white,
-    bgColor: colors.warning,
+    color: '#FFFFFF',
+    bgColor: '#F59E0B',
   },
   resolved: {
     label: 'Resolved',
-    color: colors.textSecondary,
-    bgColor: colors.borderLight,
+    color: '#94A3B8',
+    bgColor: '#1E293B',
   },
 } as const;

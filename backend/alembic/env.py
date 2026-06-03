@@ -2,6 +2,8 @@
 
 Configures Alembic to use the same SQLAlchemy Base metadata
 as the application, enabling autogenerate to detect model changes.
+The database URL is always read from app settings (not alembic.ini)
+so .env is the single source of truth.
 """
 
 from logging.config import fileConfig
@@ -9,6 +11,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from app.core.config import settings
 from app.core.database import Base
 
 # Import all models so they register with Base.metadata
@@ -16,6 +19,9 @@ import app.models  # noqa: F401
 
 # Alembic Config object
 config = context.config
+
+# Override the URL from settings so .env is the single source of truth
+config.set_main_option("sqlalchemy.url", settings.database_url)
 
 # Set up Python logging from alembic.ini
 if config.config_file_name is not None:
@@ -26,11 +32,7 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
-
-    Configures the context with just a URL and not an Engine.
-    Calls to context.execute() emit the given string to the script output.
-    """
+    """Run migrations in 'offline' mode."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -44,10 +46,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
-
-    Creates an Engine and associates a connection with the context.
-    """
+    """Run migrations in 'online' mode."""
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

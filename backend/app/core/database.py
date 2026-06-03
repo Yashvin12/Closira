@@ -1,6 +1,6 @@
 """SQLAlchemy database engine and session management.
 
-Uses SQLite by default. The session factory provides scoped sessions
+Uses PostgreSQL via psycopg2. The session factory provides scoped sessions
 for request-level isolation via FastAPI's dependency injection.
 """
 
@@ -11,15 +11,10 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import settings
 
-# SQLite requires check_same_thread=False for FastAPI's async context
-connect_args: dict[str, bool] = {}
-if settings.database_url.startswith("sqlite"):
-    connect_args["check_same_thread"] = False
-
 engine = create_engine(
     settings.database_url,
-    connect_args=connect_args,
     echo=settings.debug,
+    pool_pre_ping=True,   # Detect stale connections before use
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
