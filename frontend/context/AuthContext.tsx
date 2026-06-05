@@ -1,9 +1,10 @@
 /**
- * AuthContext — JWT auth state with AsyncStorage persistence.
+ * AuthContext — JWT auth state with AsyncStorage persistence + auto-refresh wiring.
  *
- * On mount: reads saved tokens, verifies they exist.
+ * On mount: reads saved tokens, verifies they exist, registers the logout
+ * handler with closiraApi so the 401 interceptor can force a logout.
  * login() / signup(): stores tokens, sets user state.
- * logout(): clears tokens, resets state.
+ * logout(): clears tokens, resets state → triggers redirect to login screen.
  */
 
 import React, {
@@ -14,7 +15,8 @@ import React, {
   useState,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { apiLogin, apiSignup, apiRefresh } from '../api/authApi';
+import { apiLogin, apiSignup } from '../api/authApi';
+import { setLogoutHandler } from '../api/closiraApi';
 
 const ACCESS_KEY = '@closira_access_token';
 const REFRESH_KEY = '@closira_refresh_token';
@@ -57,7 +59,24 @@ export function AuthProvider({
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Restore session on mount
+  // ── Logout ────────────────────────────────────────────────────────────────
+
+  const logout = useCallback(async () => {
+    await AsyncStorage.multiRemove([ACCESS_KEY, REFRESH_KEY]);
+    setAccessToken(null);
+    setUser(null);
+  }, []);
+
+  // ── Register logout handler with API interceptor ──────────────────────────
+  // This avoids a circular import: closiraApi → AuthContext → closiraApi.
+  // Instead, closiraApi exposes a setter and AuthContext pushes its logout in.
+
+  useEffect(() => {
+    setLogoutHandler(logout);
+  }, [logout]);
+
+  // ── Restore session on mount ──────────────────────────────────────────────
+
   useEffect(() => {
     (async () => {
       try {
@@ -77,6 +96,8 @@ export function AuthProvider({
     })();
   }, []);
 
+  // ── Token persistence ─────────────────────────────────────────────────────
+
   const _storeTokens = useCallback(async (access: string, refresh: string) => {
     await AsyncStorage.multiSet([
       [ACCESS_KEY, access],
@@ -86,6 +107,8 @@ export function AuthProvider({
     setAccessToken(access);
     setUser({ id });
   }, []);
+
+  // ── Login ─────────────────────────────────────────────────────────────────
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -100,6 +123,8 @@ export function AuthProvider({
     [_storeTokens]
   );
 
+  // ── Signup ────────────────────────────────────────────────────────────────
+
   const signup = useCallback(
     async (email: string, password: string, fullName?: string) => {
       try {
@@ -112,12 +137,6 @@ export function AuthProvider({
     },
     [_storeTokens]
   );
-
-  const logout = useCallback(async () => {
-    await AsyncStorage.multiRemove([ACCESS_KEY, REFRESH_KEY]);
-    setAccessToken(null);
-    setUser(null);
-  }, []);
 
   return (
     <AuthContext.Provider value={{ user, accessToken, isLoading, login, signup, logout }}>

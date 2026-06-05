@@ -1,9 +1,9 @@
-# Closira — Full-Stack Engineering Assignment
+# Closira — Full-Stack Application
 
 > **AI-powered customer communication platform for SMBs.**  
-> This repository contains both the **Backend REST API + async worker** and the **Frontend React Native mobile dashboard** as a combined full-stack submission.
+> This repository contains both the **Backend REST API + async worker** and the **Frontend React Native mobile dashboard** as a combined full-stack application.
 
-**Backend:** Python 3.11 · FastAPI · SQLAlchemy 2 · SQLite · Alembic · Pydantic v2  
+**Backend:** Python 3.11 · FastAPI · PostgreSQL · Redis · Celery · Docker · SQLAlchemy 2 · Alembic · Pydantic v2  
 **Frontend:** React Native · Expo SDK 56 · Expo Router v4 · TypeScript · Inter font
 
 ---
@@ -24,7 +24,7 @@
 5. [Run Tests](#5-run-tests)  
 6. [API Reference & Example Payloads](#6-api-reference--example-payloads)  
 7. [Database Schema & Reasoning](#7-database-schema--reasoning)  
-8. [BackgroundTasks vs Celery — Decision](#8-backgroundtasks-vs-celery--decision)  
+8. [Asynchronous Processing (Celery & Redis)](#8-asynchronous-processing-celery--redis)  
 9. [SOP Matching Logic](#9-sop-matching-logic)  
 10. [Structured Logging](#10-structured-logging)  
 11. [Frontend — Screens & Navigation](#11-frontend--screens--navigation)  
@@ -608,27 +608,22 @@ CREATE INDEX idx_enquiry_events_enquiry_id ON enquiry_events(enquiry_id);
 The `enquiries` table stores the current state of a lead. The `enquiry_events` table is an append-only audit log — every status change writes a new row. This separates "what is the current state" (single row query) from "how did we get here" (ordered timeline query), which maps directly to what the dashboard needs.
 
 **Why UUID4 primary keys stored as TEXT?**  
-SQLite doesn't have a native UUID type. Storing as `TEXT(36)` is portable across databases — switching to PostgreSQL requires only a `DATABASE_URL` change, no schema migration.
+Storing as `TEXT(36)` is portable across databases, avoiding issues if migrating away from PostgreSQL to another database without native UUID types.
 
-**Why SQLite?**  
-SQLite is the right choice for this assignment because:
-- Zero setup — no database server to install or configure
-- A new engineer can run `uvicorn app.main:app --reload` and it works immediately
-- The `DATABASE_URL` environment variable accepts any SQLAlchemy connection string — swapping to PostgreSQL requires changing one line in `.env`
-
-**Scalability path:** Set `DATABASE_URL=postgresql://user:pass@host/db` in `.env`. The ORM layer is database-agnostic.
+**Why PostgreSQL?**  
+PostgreSQL is used as the primary database for robust concurrent writes and data integrity, ensuring reliable production performance when tracking many enquiries simultaneously.
 
 ---
 
-## 8. Synchronous SOP Matching vs Background Processing Decision
+## 8. Asynchronous Processing (Celery & Redis)
 
-**We chose synchronous matching in the API route.**
+**We chose Celery and Redis for asynchronous background tasks.**
 
-Initially, the project was designed to return a response immediately and run SOP keyword matching in a background task (`BackgroundTasks`). However, we migrated this to synchronous execution because:
+While synchronous processing can work for trivial regex matches, moving to Celery ensures that the application is fully prepared for real-world scaling, such as replacing basic keyword matching with external LLM API calls.
 
-1. **Sub-millisecond latency:** SOP matching is a CPU-trivial, word-boundary regex keyword check that completes in under 1 millisecond. Using background task workers adds overhead without any latency benefit.
-2. **Race condition prevention:** When the React Native frontend creates a new lead and immediately polls or updates the leads list, a background task could introduce a race condition where the lead is still marked as `new` or `pending` instead of `qualified`/`escalated`. Synchronous execution guarantees the frontend receives the final state (e.g., `qualified` with a suggested response) in the HTTP response.
-3. **Decoupled code:** The matching engine is fully isolated in `app/services/sop_matcher.py`, which is still easy to migrate to an asynchronous worker (like Celery) if we upgrade to external LLM calls.
+1. **Scalability:** Heavy processing tasks (like LLM-based SOP matching or sending follow-up emails) are offloaded to background Celery workers, keeping the main FastAPI API highly responsive.
+2. **Reliability:** Celery provides robust retries, dead-letter queuing, and task monitoring out of the box.
+3. **Decoupled code:** The matching engine is fully isolated in `app/services/sop_matcher.py`, making it straightforward to dispatch tasks to the Celery worker queue using Redis as the message broker.
 
 ---
 
@@ -859,18 +854,11 @@ Shows the message thread (customer left grey, AI right indigo), SOP Matched info
 
 | Area | Decision | Trade-off | Mitigation / Production Path |
 |---|---|---|---|
-| **Database** | SQLite | No concurrent writes across processes, no replication | Change `DATABASE_URL` in `.env` to `postgresql://...` — the ORM layer is fully database-agnostic |
-| **Async worker** | `BackgroundTasks` | In-process, no retry, no dead-letter queue | For LLM-based SOP matching (seconds of I/O latency), migrate `enquiry_processor.py` to a Celery task |
 | **Follow-up execution** | Delay is recorded in DB but not executed | No scheduler for actual delayed message sending | Add APScheduler, Celery Beat, or a cron system to actually dispatch messages at `scheduled_at` |
-| **Authentication** | None — all endpoints are public | Any caller can create/escalate/modify enquiries | Add FastAPI security dependencies (`OAuth2PasswordBearer`, API key middleware) |
 | **Rate limiting** | None | Endpoints can be spammed | Add `slowapi` or deploy behind an API gateway with rate limiting |
 | **Pagination** | Lists return all items | Slow at high volume | Add `skip`/`limit` query parameters to the history and list endpoints |
 | **SOP matching** | Substring keyword check | "mispriced" matches "price", no ranking | Replace with TF-IDF, word-boundary tokenisation, or an LLM classifier |
-| **Frontend — no real API** | Mock data only | No live data | `useMockData()` has identical interface to a future `useAPIData()` hook; swap is additive |
-| **LayoutAnimation (Android)** | Requires experimental flag | May not work on all Android devices without `UIManager.setLayoutAnimationEnabledExperimental(true)` | Set in `escalations.tsx` — already handled |
 | **No i18n** | English only | Not internationalisation-ready | All user-facing strings are co-located in component files and extractable |
-| **Dark/light mode** | Full light/dark/system theme support | `makeStyles()` recreates styles on every render | Memoised at the component level; no measurable perf impact on 10–20 card lists |
-| **Alembic migrations** | Infrastructure in place but no migration files | Running `alembic upgrade head` on a fresh DB needs a baseline migration | For production, generate the initial migration with `alembic revision --autogenerate -m "init"` |
 
 ---
 

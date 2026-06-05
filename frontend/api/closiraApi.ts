@@ -6,6 +6,9 @@
  * - Return typed data on success
  * - Throw a structured ApiError on failure
  * - Attach Authorization: Bearer <token> from AsyncStorage
+ * - **Auto-refresh:** On 401, transparently refreshes the access token
+ *   using the stored refresh token, retries the original request once,
+ *   and logs out if the refresh itself fails.
  */
 
 import { API_BASE_URL, API_TIMEOUT_MS } from '../constants/config';
@@ -17,6 +20,7 @@ import type {
 } from '../context/MockDataContext';
 
 const ACCESS_KEY = '@closira_access_token';
+const REFRESH_KEY = '@closira_refresh_token';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Error Type
@@ -60,7 +64,80 @@ export interface EnquiryJobResponse {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Internal fetch helper
+// Logout callback — set from AuthContext to avoid circular imports
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * AuthContext calls `setLogoutHandler(logout)` on mount so the interceptor
+ * can force a logout without importing AuthContext (which would be circular).
+ */
+let _logoutHandler: (() => Promise<void>) | null = null;
+
+export function setLogoutHandler(handler: () => Promise<void>): void {
+  _logoutHandler = handler;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Refresh token lock — prevents parallel refresh races
+// ─────────────────────────────────────────────────────────────────────────────
+
+let _refreshPromise: Promise<string | null> | null = null;
+
+/**
+ * Attempt to exchange the stored refresh token for a new access token.
+ * Returns the new access token or null if the refresh itself failed.
+ *
+ * If a refresh is already in-flight, piggy-back on the existing promise
+ * to avoid concurrent /auth/refresh calls (race condition).
+ */
+async function tryRefreshToken(): Promise<string | null> {
+  // Coalesce concurrent callers onto a single in-flight refresh
+  if (_refreshPromise) return _refreshPromise;
+
+  _refreshPromise = (async () => {
+    try {
+      const refreshToken = await AsyncStorage.getItem(REFRESH_KEY);
+      if (!refreshToken) return null;
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+          signal: controller.signal,
+        });
+
+        if (!res.ok) return null; // Refresh token expired or invalid
+
+        const body = await res.json();
+        const newAccess: string = body.access_token;
+        const newRefresh: string = body.refresh_token;
+
+        // Persist new token pair
+        await AsyncStorage.multiSet([
+          [ACCESS_KEY, newAccess],
+          [REFRESH_KEY, newRefresh],
+        ]);
+
+        return newAccess;
+      } finally {
+        clearTimeout(timer);
+      }
+    } catch (_) {
+      return null; // Network error during refresh
+    } finally {
+      _refreshPromise = null; // Release the lock
+    }
+  })();
+
+  return _refreshPromise;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Internal fetch helper with automatic 401 → refresh → retry
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function apiFetch<T>(
@@ -70,7 +147,7 @@ async function apiFetch<T>(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
 
-  // Read token from storage
+  // Read current access token
   let authHeader: Record<string, string> = {};
   try {
     const token = await AsyncStorage.getItem(ACCESS_KEY);
@@ -88,6 +165,54 @@ async function apiFetch<T>(
       },
     });
 
+    // ── 401 Interceptor: try to refresh and retry once ──────────────────
+    if (res.status === 401) {
+      clearTimeout(timer); // Release the original timeout
+
+      const newAccessToken = await tryRefreshToken();
+
+      if (!newAccessToken) {
+        // Refresh failed — force logout and throw
+        if (_logoutHandler) await _logoutHandler();
+        throw new ApiError(401, 'Session expired. Please log in again.');
+      }
+
+      // Retry the original request with the fresh token
+      const retryController = new AbortController();
+      const retryTimer = setTimeout(() => retryController.abort(), API_TIMEOUT_MS);
+
+      try {
+        const retryRes = await fetch(`${API_BASE_URL}${path}`, {
+          ...options,
+          signal: retryController.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${newAccessToken}`,
+            ...(options?.headers ?? {}),
+          },
+        });
+
+        if (!retryRes.ok) {
+          // If it STILL fails after refresh, check if it's another 401
+          if (retryRes.status === 401) {
+            if (_logoutHandler) await _logoutHandler();
+            throw new ApiError(401, 'Session expired. Please log in again.');
+          }
+          let errMsg = `HTTP ${retryRes.status}`;
+          try {
+            const body = await retryRes.json();
+            errMsg = body?.error ?? body?.detail ?? errMsg;
+          } catch (_) {}
+          throw new ApiError(retryRes.status, errMsg);
+        }
+
+        return (await retryRes.json()) as T;
+      } finally {
+        clearTimeout(retryTimer);
+      }
+    }
+
+    // ── Non-401 errors ──────────────────────────────────────────────────
     if (!res.ok) {
       let errMsg = `HTTP ${res.status}`;
       try {
