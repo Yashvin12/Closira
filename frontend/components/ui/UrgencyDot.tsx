@@ -11,7 +11,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
-import { colors } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 interface UrgencyDotProps {
   /** Urgency level */
@@ -24,6 +24,7 @@ interface UrgencyDotProps {
  * Renders a coloured urgency dot. High urgency gets a pulsing outer ring.
  */
 export function UrgencyDot({ urgency, size = 10 }: UrgencyDotProps): React.JSX.Element {
+  const { colors } = useTheme();
   const dotColor = urgency === 'high' ? colors.danger : colors.warning;
 
   const pulseScale = useRef(new Animated.Value(1)).current;

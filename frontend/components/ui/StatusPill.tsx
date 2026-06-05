@@ -13,13 +13,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import {
-  statusConfig,
   fontSize,
   fontFamily,
   borderRadius,
   spacing,
   letterSpacing,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 interface StatusPillProps {
   /** The enquiry lifecycle status */
@@ -30,6 +30,7 @@ interface StatusPillProps {
  * Renders a color-coded solid status pill with dot indicator and uppercase label.
  */
 export function StatusPill({ status }: StatusPillProps): React.JSX.Element {
+  const { statusConfig } = useTheme();
   const config = statusConfig[status];
 
   return (

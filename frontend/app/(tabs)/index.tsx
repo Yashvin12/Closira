@@ -28,15 +28,14 @@ import { StatusPill } from '../../components/ui/StatusPill';
 import { NewEnquiryModal } from '../../components/ui/NewEnquiryModal';
 import { useMockData, type Enquiry } from '../../hooks/useMockData';
 import {
-  colors,
   fontSize,
   fontFamily,
   spacing,
   borderRadius,
-  shadows,
   iconSize,
   letterSpacing,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 import { getInitials, getAvatarBg, formatRelativeTime, getFormattedDate, getGreeting } from '../../utils/formatters';
 
 
@@ -48,6 +47,7 @@ import { getInitials, getAvatarBg, formatRelativeTime, getFormattedDate, getGree
 export default function DashboardScreen(): React.JSX.Element {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors, shadows } = useTheme();
   const data = useMockData();
   const { enquiries, escalations, followups } = data;
   const isLive = (data as any).isLive ?? false;
@@ -58,6 +58,8 @@ export default function DashboardScreen(): React.JSX.Element {
   const missedEnquiries = enquiries.filter((e) => e.status === 'new').length;
   const openEscalations = escalations.length;
   const followUpsDue = followups.length;
+
+  const styles = makeStyles(colors);
 
   const renderRecentItem = ({ item }: { item: Enquiry }) => {
     const avatarBg = getAvatarBg(item.customer_name);
@@ -165,7 +167,7 @@ export default function DashboardScreen(): React.JSX.Element {
         {/* Escalations card */}
         <Pressable
           onPress={() => router.push('/(tabs)/escalations')}
-          style={({ pressed }) => [styles.quickCard, pressed && styles.quickCardPressed]}
+          style={({ pressed }) => [styles.quickCard, shadows.sm, pressed && styles.quickCardPressed]}
           accessibilityRole="button"
           accessibilityLabel="View escalations"
         >
@@ -184,7 +186,7 @@ export default function DashboardScreen(): React.JSX.Element {
         {/* Follow-ups card */}
         <Pressable
           onPress={() => router.push('/(tabs)/followups')}
-          style={({ pressed }) => [styles.quickCard, pressed && styles.quickCardPressed]}
+          style={({ pressed }) => [styles.quickCard, shadows.sm, pressed && styles.quickCardPressed]}
           accessibilityRole="button"
           accessibilityLabel="View follow-ups"
         >
@@ -206,7 +208,7 @@ export default function DashboardScreen(): React.JSX.Element {
         <Text style={styles.sectionLabelText}>RECENT ACTIVITY</Text>
         <View style={styles.sectionLine} />
       </View>
-      <View style={styles.recentCard}>
+      <View style={[styles.recentCard, shadows.sm]}>
         <FlatList
           data={recentEnquiries}
           renderItem={renderRecentItem}
@@ -220,7 +222,7 @@ export default function DashboardScreen(): React.JSX.Element {
     {/* ─── FAB ─────────────────────────────────────────────────── */}
     <Pressable
       onPress={() => setModalVisible(true)}
-      style={[styles.fab, { bottom: insets.bottom + spacing.lg + 64 }]}
+      style={[styles.fab, shadows.lg, { bottom: insets.bottom + spacing.lg + 64 }]}
       accessibilityRole="button"
       accessibilityLabel="Add new enquiry"
     >
@@ -228,7 +230,7 @@ export default function DashboardScreen(): React.JSX.Element {
     </Pressable>
 
     {/* ─── Live / Demo Badge ─────────────────────────────────── */}
-    <View style={[styles.liveBadge, { bottom: insets.bottom + spacing.lg + 64 + 64 }]}>
+    <View style={[styles.liveBadge, shadows.sm, { bottom: insets.bottom + spacing.lg + 64 + 64 }]}>
       <View style={[styles.liveDot, { backgroundColor: isLive ? colors.success : colors.textTertiary }]} />
       <Text style={styles.liveBadgeText}>{isLive ? 'LIVE' : 'DEMO'}</Text>
     </View>
@@ -241,240 +243,237 @@ export default function DashboardScreen(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-  },
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.lg,
+    },
 
-  // ─── Header ───────────────────────────────────────────────────
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing['2xl'],
-    paddingBottom: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  headerLeft: {
-    gap: spacing.xs,
-  },
-  headerDate: {
-    fontSize: fontSize.xs,
-    fontFamily: fontFamily.semibold,
-    color: colors.primary,
-    letterSpacing: letterSpacing.label,
-  },
-  headerGreeting: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.regular,
-    color: colors.textSecondary,
-  },
-  headerTitle: {
-    fontSize: fontSize['2xl'],
-    fontFamily: fontFamily.bold,
-    color: colors.textPrimary,
-    letterSpacing: letterSpacing.tight,
-  },
-  headerAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(99,102,241,0.3)',
-  },
-  headerAvatarText: {
-    fontSize: fontSize.base,
-    fontFamily: fontFamily.bold,
-    color: colors.white,
-    letterSpacing: 0.5,
-  },
+    // ─── Header ───────────────────────────────────────────────────
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing['2xl'],
+      paddingBottom: spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerLeft: {
+      gap: spacing.xs,
+    },
+    headerDate: {
+      fontSize: fontSize.xs,
+      fontFamily: fontFamily.semibold,
+      color: colors.primary,
+      letterSpacing: letterSpacing.label,
+    },
+    headerGreeting: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.regular,
+      color: colors.textSecondary,
+    },
+    headerTitle: {
+      fontSize: fontSize['2xl'],
+      fontFamily: fontFamily.bold,
+      color: colors.textPrimary,
+      letterSpacing: letterSpacing.tight,
+    },
+    headerAvatar: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: 'rgba(99,102,241,0.3)',
+    },
+    headerAvatarText: {
+      fontSize: fontSize.base,
+      fontFamily: fontFamily.bold,
+      color: colors.white,
+      letterSpacing: 0.5,
+    },
 
-  // ─── Section Labels ───────────────────────────────────────────
-  sectionLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  sectionLabelText: {
-    fontSize: 10,
-    fontFamily: fontFamily.bold,
-    color: colors.textTertiary,
-    letterSpacing: letterSpacing.badge,
-    flexShrink: 0,
-  },
-  sectionLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
+    // ─── Section Labels ───────────────────────────────────────────
+    sectionLabel: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      marginBottom: spacing.md,
+    },
+    sectionLabelText: {
+      fontSize: 10,
+      fontFamily: fontFamily.bold,
+      color: colors.textTertiary,
+      letterSpacing: letterSpacing.badge,
+      flexShrink: 0,
+    },
+    sectionLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
 
-  // ─── Stats Grid ───────────────────────────────────────────────
-  statsGrid: {
-    gap: spacing.md,
-    marginBottom: spacing['2xl'],
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
+    // ─── Stats Grid ───────────────────────────────────────────────
+    statsGrid: {
+      gap: spacing.md,
+      marginBottom: spacing['2xl'],
+    },
+    statsRow: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
 
-  // ─── Quick Actions ────────────────────────────────────────────
-  quickActions: {
-    gap: spacing.md,
-    marginBottom: spacing['2xl'],
-  },
-  quickCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    minHeight: 64,
-    ...shadows.sm,
-  },
-  quickCardPressed: {
-    opacity: 0.75,
-  },
-  quickIconRing: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quickContent: {
-    flex: 1,
-    gap: 2,
-  },
-  quickTitle: {
-    fontSize: fontSize.base,
-    fontFamily: fontFamily.semibold,
-    color: colors.textPrimary,
-  },
-  quickCount: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.regular,
-  },
+    // ─── Quick Actions ────────────────────────────────────────────
+    quickActions: {
+      gap: spacing.md,
+      marginBottom: spacing['2xl'],
+    },
+    quickCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      gap: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.borderSubtle,
+      minHeight: 64,
+    },
+    quickCardPressed: {
+      opacity: 0.75,
+    },
+    quickIconRing: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    quickContent: {
+      flex: 1,
+      gap: 2,
+    },
+    quickTitle: {
+      fontSize: fontSize.base,
+      fontFamily: fontFamily.semibold,
+      color: colors.textPrimary,
+    },
+    quickCount: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.regular,
+    },
 
-  // ─── Recent Activity ──────────────────────────────────────────
-  recentCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    ...shadows.sm,
-  },
-  recentItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.md,
-    gap: spacing.md,
-  },
-  recentItemPressed: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
-  },
-  recentAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexShrink: 0,
-  },
-  recentAvatarText: {
-    fontSize: fontSize.xs,
-    fontFamily: fontFamily.bold,
-    color: colors.white,
-    letterSpacing: 0.5,
-  },
-  recentItemContent: {
-    flex: 1,
-    gap: 2,
-  },
-  recentItemName: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.semibold,
-    color: colors.textPrimary,
-  },
-  recentItemMessage: {
-    fontSize: fontSize.xs,
-    fontFamily: fontFamily.regular,
-    color: colors.textSecondary,
-  },
-  recentItemRight: {
-    alignItems: 'flex-end',
-    gap: spacing.xs,
-    flexShrink: 0,
-  },
-  recentTimeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  recentItemTime: {
-    fontSize: fontSize.xs,
-    color: colors.textTertiary,
-    fontFamily: fontFamily.semibold,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginHorizontal: spacing.md,
-  },
+    // ─── Recent Activity ──────────────────────────────────────────
+    recentCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: colors.borderSubtle,
+    },
+    recentItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.md,
+      gap: spacing.md,
+    },
+    recentItemPressed: {
+      backgroundColor: colors.surfacePressed,
+    },
+    recentAvatar: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexShrink: 0,
+    },
+    recentAvatarText: {
+      fontSize: fontSize.xs,
+      fontFamily: fontFamily.bold,
+      color: colors.white,
+      letterSpacing: 0.5,
+    },
+    recentItemContent: {
+      flex: 1,
+      gap: 2,
+    },
+    recentItemName: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.semibold,
+      color: colors.textPrimary,
+    },
+    recentItemMessage: {
+      fontSize: fontSize.xs,
+      fontFamily: fontFamily.regular,
+      color: colors.textSecondary,
+    },
+    recentItemRight: {
+      alignItems: 'flex-end',
+      gap: spacing.xs,
+      flexShrink: 0,
+    },
+    recentTimeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+    },
+    recentItemTime: {
+      fontSize: fontSize.xs,
+      color: colors.textTertiary,
+      fontFamily: fontFamily.semibold,
+    },
+    separator: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginHorizontal: spacing.md,
+    },
 
-  // ─── FAB ──────────────────────────────────────────────────────
-  fab: {
-    position: 'absolute',
-    right: spacing.lg,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...shadows.lg,
-    borderWidth: 2,
-    borderColor: 'rgba(99,102,241,0.4)',
-  },
+    // ─── FAB ──────────────────────────────────────────────────────
+    fab: {
+      position: 'absolute',
+      right: spacing.lg,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: 'rgba(99,102,241,0.4)',
+    },
 
-  // ─── Live Badge ───────────────────────────────────────────────
-  liveBadge: {
-    position: 'absolute',
-    right: spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...shadows.sm,
-  },
-  liveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  liveBadgeText: {
-    fontSize: 9,
-    fontFamily: fontFamily.bold,
-    color: colors.textTertiary,
-    letterSpacing: 0.8,
-  },
-});
+    // ─── Live Badge ───────────────────────────────────────────────
+    liveBadge: {
+      position: 'absolute',
+      right: spacing.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    liveDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+    },
+    liveBadgeText: {
+      fontSize: 9,
+      fontFamily: fontFamily.bold,
+      color: colors.textTertiary,
+      letterSpacing: 0.8,
+    },
+  });

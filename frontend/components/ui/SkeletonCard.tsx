@@ -9,13 +9,16 @@
 
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius } from '../../constants/theme';
+import { spacing, borderRadius } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 /**
  * Renders a shimmering skeleton card matching LeadCard dimensions.
  */
 export function SkeletonCard(): React.JSX.Element {
+  const { colors } = useTheme();
   const opacity = useRef(new Animated.Value(0.35)).current;
+  const styles = makeStyles(colors);
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -49,48 +52,49 @@ export function SkeletonCard(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-  },
-  topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  badge: {
-    width: 72,
-    height: 20,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.border,
-  },
-  time: {
-    width: 44,
-    height: 12,
-    borderRadius: borderRadius.sm,
-    backgroundColor: colors.border,
-  },
-  nameLine: {
-    width: '55%',
-    height: 16,
-    borderRadius: borderRadius.sm,
-    backgroundColor: colors.border,
-    marginBottom: spacing.sm,
-  },
-  messageLine: {
-    width: '100%',
-    height: 12,
-    borderRadius: borderRadius.sm,
-    backgroundColor: colors.border,
-    marginBottom: spacing.xs,
-  },
-  messageLineShort: {
-    width: '68%',
-  },
-});
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      marginBottom: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.borderSubtle,
+    },
+    topRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    badge: {
+      width: 72,
+      height: 20,
+      borderRadius: borderRadius.full,
+      backgroundColor: colors.border,
+    },
+    time: {
+      width: 44,
+      height: 12,
+      borderRadius: borderRadius.sm,
+      backgroundColor: colors.border,
+    },
+    nameLine: {
+      width: '55%',
+      height: 16,
+      borderRadius: borderRadius.sm,
+      backgroundColor: colors.border,
+      marginBottom: spacing.sm,
+    },
+    messageLine: {
+      width: '100%',
+      height: 12,
+      borderRadius: borderRadius.sm,
+      backgroundColor: colors.border,
+      marginBottom: spacing.xs,
+    },
+    messageLineShort: {
+      width: '68%',
+    },
+  });

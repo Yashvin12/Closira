@@ -1,24 +1,29 @@
 """Security utilities — password hashing and JWT creation/validation."""
 
 from datetime import datetime, timedelta, timezone
+import hashlib
 from typing import Any
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def hash_password(plain: str) -> str:
-    """Return bcrypt hash of the given plain-text password."""
-    return _pwd_context.hash(plain)
+    """Return bcrypt hash of the given plain-text password.
+
+    The password is pre-hashed with SHA-256 (hexdigest) to avoid bcrypt's 72-byte limit
+    and potential NULL byte truncation issues in passlib/bcrypt.
+    """
+    pre_hashed = hashlib.sha256(plain.encode("utf-8")).hexdigest()
+    return bcrypt.hashpw(pre_hashed.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     """Return True if plain matches the stored bcrypt hash."""
-    return _pwd_context.verify(plain, hashed)
+    pre_hashed = hashlib.sha256(plain.encode("utf-8")).hexdigest()
+    return bcrypt.checkpw(pre_hashed.encode("utf-8"), hashed.encode("utf-8"))
 
 
 def _make_token(data: dict[str, Any], expires_delta: timedelta) -> str:

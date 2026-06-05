@@ -91,7 +91,12 @@ closira/
 │
 ├── frontend/
 │   ├── app/
-│   │   ├── _layout.tsx              # Root layout (fonts + MockDataProvider)
+│   │   ├── _layout.tsx              # Root layout (fonts + providers)
+│   │   ├── (auth)/
+│   │   │   ├── _layout.tsx          # Auth stack (headerless)
+│   │   │   ├── login.tsx            # Login screen
+│   │   │   ├── signup.tsx           # Signup screen
+│   │   │   └── forgot-password.tsx  # Password reset screen
 │   │   ├── (tabs)/
 │   │   │   ├── _layout.tsx          # Bottom tab navigator (4 tabs)
 │   │   │   ├── index.tsx            # Dashboard screen
@@ -111,11 +116,15 @@ closira/
 │   │       ├── StatusPill.tsx       # New/Qualified/Escalated pill
 │   │       ├── UrgencyDot.tsx       # Pulsing dot for high/medium urgency
 │   │       ├── EmptyState.tsx       # Graceful empty list component
-│   │       └── SkeletonCard.tsx     # Loading skeleton placeholder
+│   │       ├── SkeletonCard.tsx     # Loading skeleton placeholder
+│   │       └── NewEnquiryModal.tsx  # Bottom-sheet modal for new enquiries
 │   ├── constants/
-│   │   └── theme.ts                 # ALL design tokens (colors, spacing, fonts)
+│   │   └── theme.ts                 # ALL design tokens (colors, spacing, fonts, shadows)
 │   ├── context/
-│   │   └── MockDataContext.tsx      # Global shared state store (React Context)
+│   │   ├── ThemeContext.tsx          # Light/dark/system theme provider
+│   │   ├── AuthContext.tsx           # Authentication state provider
+│   │   ├── AppDataContext.tsx        # Global shared state store (React Context)
+│   │   └── MockDataContext.tsx       # Mock data provider (demo mode)
 │   ├── hooks/
 │   │   └── useMockData.ts           # Thin hook wrapper over MockDataContext
 │   ├── mock/
@@ -711,34 +720,48 @@ The tab bar uses a custom `TabIcon` component with a **pill indicator** (indigo,
 
 ---
 
-## 12. Frontend — Styling Decision (StyleSheet vs NativeWind)
+## 12. Frontend — Styling & Theming
+
+### Theme Architecture
+
+The app supports **light, dark, and system** themes. The theme preference is persisted in `AsyncStorage` and survives app restarts.
+
+**How it works:**
+
+1. **`constants/theme.ts`** defines two complete colour palettes (`darkColors` and `lightColors`), shadow presets (`darkShadows` / `lightShadows`), and a theme-aware `getStatusConfig()` function.
+2. **`context/ThemeContext.tsx`** resolves the active palette based on user preference or system setting and provides it via `useTheme()`.
+3. **Every component** consumes `const { colors, shadows, statusConfig } = useTheme()` and uses a `makeStyles(colors)` factory so all colours switch dynamically.
+
+```typescript
+// Component pattern used everywhere:
+const { colors, shadows } = useTheme();
+const styles = makeStyles(colors);
+
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,      // white in light, dark slate in dark
+      borderColor: colors.borderSubtle,      // rgba(0,0,0,0.06) / rgba(255,255,255,0.06)
+    },
+  });
+```
+
+To toggle the theme programmatically: `toggleTheme()` or `setTheme('light' | 'dark' | 'system')`.
+
+### Styling Decision (StyleSheet vs NativeWind)
 
 **We used React Native's built-in `StyleSheet` API throughout.**
 
 > NativeWind v4 is installed (`package.json` includes `"nativewind": "^4.2.4"`) and available for future use, but `StyleSheet` provides better alignment with the design system requirements for this assignment.
 
-### Reasoning
-
 **1. Design tokens require computed values.**  
-All design tokens live in [`constants/theme.ts`](frontend/constants/theme.ts) — a typed TypeScript object with semantic colour names, a strict 4pt spacing grid, border-radius scale, shadow presets, and font size tokens. `StyleSheet` references these directly:
-
-```typescript
-// ✅ Type-safe, single source of truth
-padding: spacing.lg,          // → 16
-color: colors.primary,        // → '#6366F1'
-...shadows.sm,                // → { shadowColor, shadowOffset, ... }
-```
-
-NativeWind would require maintaining a parallel `tailwind.config.js` that mirrors `theme.ts`, creating a **single-source-of-truth violation** and making the design system harder to maintain.
+All design tokens live in [`constants/theme.ts`](frontend/constants/theme.ts) — a typed TypeScript object with semantic colour names, a strict 4pt spacing grid, border-radius scale, shadow presets, and font size tokens. `StyleSheet` references these directly.
 
 **2. Platform-specific shadows.**  
-iOS uses `shadowColor/shadowOffset/shadowOpacity/shadowRadius`; Android uses `elevation`. `StyleSheet` handles this with a spread from `shadows.sm` / `shadows.md`. NativeWind v4's shadow support on native targets is limited and requires workarounds.
+iOS uses `shadowColor/shadowOffset/shadowOpacity/shadowRadius`; Android uses `elevation`. The theme provides separate `lightShadows` (subtle) and `darkShadows` (dramatic) presets.
 
 **3. Animation requires runtime values.**  
 `FollowUpCard` uses `Animated.Value` for its fade-out animation. `EscalationCard` uses `Animated.spring` for the resolve button scale feedback. These animations drive `StyleSheet` properties at runtime — NativeWind's static class compilation cannot drive runtime `Animated.Value` objects.
-
-**When NativeWind would be the right choice:**  
-Rapid prototyping where the design system is Tailwind-based from the start, or if the team is already using Tailwind on a web project and wants to share utility vocabulary.
 
 ---
 
@@ -846,7 +869,7 @@ Shows the message thread (customer left grey, AI right indigo), SOP Matched info
 | **Frontend — no real API** | Mock data only | No live data | `useMockData()` has identical interface to a future `useAPIData()` hook; swap is additive |
 | **LayoutAnimation (Android)** | Requires experimental flag | May not work on all Android devices without `UIManager.setLayoutAnimationEnabledExperimental(true)` | Set in `escalations.tsx` — already handled |
 | **No i18n** | English only | Not internationalisation-ready | All user-facing strings are co-located in component files and extractable |
-| **No dark/light mode toggle** | Dark theme only | No preference-based switching | All colour tokens are centralised in `theme.ts`; adding a `lightColors` variant is additive |
+| **Dark/light mode** | Full light/dark/system theme support | `makeStyles()` recreates styles on every render | Memoised at the component level; no measurable perf impact on 10–20 card lists |
 | **Alembic migrations** | Infrastructure in place but no migration files | Running `alembic upgrade head` on a fresh DB needs a baseline migration | For production, generate the initial migration with `alembic revision --autogenerate -m "init"` |
 
 ---

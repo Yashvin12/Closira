@@ -16,13 +16,13 @@ import { LeadCard } from '../../components/cards/LeadCard';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { useMockData, type Enquiry } from '../../hooks/useMockData';
 import {
-  colors,
   fontSize,
   fontFamily,
   letterSpacing,
   spacing,
   borderRadius,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 type FilterType = 'all' | 'new' | 'qualified' | 'escalated' | 'followed_up';
 
@@ -39,8 +39,10 @@ const FILTERS: { key: FilterType; label: string }[] = [
  */
 export default function LeadsScreen(): React.JSX.Element {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const { enquiries } = useMockData();
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const styles = makeStyles(colors);
 
   const counts = useMemo(
     () => ({
@@ -119,80 +121,81 @@ export default function LeadsScreen(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  filterBar: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-    gap: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  filterPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.full,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.border,
-    minHeight: 36,
-  },
-  filterPillActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  filterPillText: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.semibold,
-    color: colors.textSecondary,
-  },
-  filterPillTextActive: {
-    color: colors.white,
-  },
-  countBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: borderRadius.full,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    minWidth: 20,
-    alignItems: 'center',
-  },
-  countBadgeActive: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  countText: {
-    fontSize: 10,
-    fontFamily: fontFamily.bold,
-    color: colors.textSecondary,
-    letterSpacing: letterSpacing.tight,
-  },
-  countTextActive: {
-    color: colors.white,
-  },
-  resultsRow: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
-  resultsText: {
-    fontSize: fontSize.xs,
-    fontFamily: fontFamily.semibold,
-    color: colors.textTertiary,
-    letterSpacing: letterSpacing.label,
-  },
-  listContent: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-  },
-  emptyContainer: {
-    flex: 1,
-  },
-});
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    filterBar: {
+      flexDirection: 'row',
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.md,
+      paddingBottom: spacing.md,
+      gap: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    filterPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.full,
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: colors.border,
+      minHeight: 36,
+    },
+    filterPillActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    filterPillText: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.semibold,
+      color: colors.textSecondary,
+    },
+    filterPillTextActive: {
+      color: colors.white,
+    },
+    countBadge: {
+      backgroundColor: colors.countBadgeBg,
+      borderRadius: borderRadius.full,
+      paddingHorizontal: 6,
+      paddingVertical: 1,
+      minWidth: 20,
+      alignItems: 'center',
+    },
+    countBadgeActive: {
+      backgroundColor: colors.countBadgeActiveBg,
+    },
+    countText: {
+      fontSize: 10,
+      fontFamily: fontFamily.bold,
+      color: colors.textSecondary,
+      letterSpacing: letterSpacing.tight,
+    },
+    countTextActive: {
+      color: colors.white,
+    },
+    resultsRow: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+    },
+    resultsText: {
+      fontSize: fontSize.xs,
+      fontFamily: fontFamily.semibold,
+      color: colors.textTertiary,
+      letterSpacing: letterSpacing.label,
+    },
+    listContent: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+    },
+    emptyContainer: {
+      flex: 1,
+    },
+  });

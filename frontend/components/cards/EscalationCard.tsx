@@ -15,14 +15,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { ChannelBadge } from '../ui/ChannelBadge';
 import { UrgencyDot } from '../ui/UrgencyDot';
 import {
-  colors,
   fontSize,
   fontFamily,
   spacing,
   borderRadius,
-  shadows,
   iconSize,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 import type { Escalation } from '../../hooks/useMockData';
 import { formatRelativeTime } from '../../utils/formatters';
 
@@ -37,8 +36,10 @@ export function EscalationCard({
   escalation,
   onResolve,
 }: EscalationCardProps): React.JSX.Element {
+  const { colors, shadows } = useTheme();
   const [isResolving, setIsResolving] = useState(false);
   const checkScale = useRef(new Animated.Value(1)).current;
+  const styles = makeStyles(colors);
 
   const handleResolve = useCallback(() => {
     if (isResolving) return;
@@ -124,105 +125,106 @@ export function EscalationCard({
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.danger,
-    borderWidth: 1,
-    borderColor: 'rgba(239,68,68,0.15)',
-  },
-  topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  urgencyRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    flex: 1,
-  },
-  topRowRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  urgencyLabel: {
-    fontSize: 10,
-    fontFamily: fontFamily.bold,
-    color: colors.danger,
-    letterSpacing: 0.8,
-  },
-  customerName: {
-    fontSize: fontSize.base,
-    fontFamily: fontFamily.semibold,
-    color: colors.textPrimary,
-  },
-  reason: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.regular,
-    color: colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: spacing.md,
-  },
-  previewBox: {
-    backgroundColor: 'rgba(239,68,68,0.08)',
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderLeftWidth: 2,
-    borderLeftColor: colors.danger,
-    marginBottom: spacing.md,
-  },
-  previewText: {
-    fontSize: fontSize.xs,
-    fontFamily: fontFamily.regular,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  timeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  time: {
-    fontSize: fontSize.xs,
-    color: colors.textTertiary,
-    fontFamily: fontFamily.semibold,
-  },
-  resolveButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
-    backgroundColor: 'rgba(34,197,94,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(34,197,94,0.2)',
-    minHeight: 44,
-    minWidth: 44,
-  },
-  resolveButtonDone: {
-    backgroundColor: 'rgba(34,197,94,0.2)',
-    borderColor: 'rgba(34,197,94,0.4)',
-  },
-  resolveText: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.semibold,
-    color: colors.success,
-  },
-  resolveTextDone: {
-    opacity: 0.7,
-  },
-});
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      marginBottom: spacing.md,
+      borderLeftWidth: 4,
+      borderLeftColor: colors.danger,
+      borderWidth: 1,
+      borderColor: 'rgba(239,68,68,0.15)',
+    },
+    topRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    urgencyRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      flex: 1,
+    },
+    topRowRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    urgencyLabel: {
+      fontSize: 10,
+      fontFamily: fontFamily.bold,
+      color: colors.danger,
+      letterSpacing: 0.8,
+    },
+    customerName: {
+      fontSize: fontSize.base,
+      fontFamily: fontFamily.semibold,
+      color: colors.textPrimary,
+    },
+    reason: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.regular,
+      color: colors.textSecondary,
+      lineHeight: 20,
+      marginBottom: spacing.md,
+    },
+    previewBox: {
+      backgroundColor: 'rgba(239,68,68,0.08)',
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderLeftWidth: 2,
+      borderLeftColor: colors.danger,
+      marginBottom: spacing.md,
+    },
+    previewText: {
+      fontSize: fontSize.xs,
+      fontFamily: fontFamily.regular,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
+    },
+    bottomRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    timeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    time: {
+      fontSize: fontSize.xs,
+      color: colors.textTertiary,
+      fontFamily: fontFamily.semibold,
+    },
+    resolveButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.md,
+      backgroundColor: 'rgba(34,197,94,0.12)',
+      borderWidth: 1,
+      borderColor: 'rgba(34,197,94,0.2)',
+      minHeight: 44,
+      minWidth: 44,
+    },
+    resolveButtonDone: {
+      backgroundColor: 'rgba(34,197,94,0.2)',
+      borderColor: 'rgba(34,197,94,0.4)',
+    },
+    resolveText: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.semibold,
+      color: colors.success,
+    },
+    resolveTextDone: {
+      opacity: 0.7,
+    },
+  });

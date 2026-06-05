@@ -14,15 +14,14 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  colors,
   fontSize,
   fontFamily,
   letterSpacing,
   spacing,
   borderRadius,
-  shadows,
   iconSize,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 interface StatCardProps {
   /** Ionicons icon name */
@@ -47,6 +46,9 @@ export function StatCard({
   value,
   label,
 }: StatCardProps): React.JSX.Element {
+  const { colors, shadows } = useTheme();
+  const styles = makeStyles(colors);
+
   return (
     <View
       style={[
@@ -67,36 +69,37 @@ export function StatCard({
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    minWidth: '45%',
-    borderLeftWidth: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: borderRadius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  value: {
-    fontSize: fontSize['3xl'],
-    fontFamily: fontFamily.bold,
-    color: colors.textPrimary,
-    letterSpacing: letterSpacing.tight,
-    marginBottom: spacing.xs,
-  },
-  label: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    fontFamily: fontFamily.semibold,
-    lineHeight: 18,
-  },
-});
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    card: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      minWidth: '45%',
+      borderLeftWidth: 4,
+      borderWidth: 1,
+      borderColor: colors.borderSubtle,
+    },
+    iconContainer: {
+      width: 48,
+      height: 48,
+      borderRadius: borderRadius.lg,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    value: {
+      fontSize: fontSize['3xl'],
+      fontFamily: fontFamily.bold,
+      color: colors.textPrimary,
+      letterSpacing: letterSpacing.tight,
+      marginBottom: spacing.xs,
+    },
+    label: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      fontFamily: fontFamily.semibold,
+      lineHeight: 18,
+    },
+  });

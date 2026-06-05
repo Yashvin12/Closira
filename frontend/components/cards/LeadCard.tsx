@@ -20,14 +20,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { ChannelBadge } from '../ui/ChannelBadge';
 import { StatusPill } from '../ui/StatusPill';
 import {
-  colors,
   fontSize,
   fontFamily,
   spacing,
   borderRadius,
-  shadows,
   iconSize,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 import type { Enquiry } from '../../hooks/useMockData';
 
 interface LeadCardProps {
@@ -72,7 +71,7 @@ function formatRelativeTime(timestamp: string): string {
 }
 
 /** Left border color based on enquiry status. */
-function getAccentBorderColor(status: Enquiry['status']): string {
+function getAccentBorderColor(status: Enquiry['status'], colors: any): string {
   if (status === 'escalated') return colors.danger;
   if (status === 'new') return colors.primary;
   return 'transparent';
@@ -80,7 +79,9 @@ function getAccentBorderColor(status: Enquiry['status']): string {
 
 export function LeadCard({ enquiry }: LeadCardProps): React.JSX.Element {
   const router = useRouter();
+  const { colors, shadows } = useTheme();
   const scale = useRef(new Animated.Value(1)).current;
+  const styles = makeStyles(colors);
 
   const handlePressIn = useCallback(() => {
     Animated.spring(scale, {
@@ -104,7 +105,7 @@ export function LeadCard({ enquiry }: LeadCardProps): React.JSX.Element {
     router.push(`/conversation/${enquiry.id}`);
   };
 
-  const accentBorderColor = getAccentBorderColor(enquiry.status);
+  const accentBorderColor = getAccentBorderColor(enquiry.status, colors);
   const avatarBg = getAvatarBg(enquiry.customer_name);
   const initials = getInitials(enquiry.customer_name);
 
@@ -162,71 +163,72 @@ export function LeadCard({ enquiry }: LeadCardProps): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-  },
-  topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.md,
-    gap: spacing.sm,
-  },
-  topLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    flex: 1,
-  },
-  topRight: {
-    alignItems: 'flex-end',
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexShrink: 0,
-  },
-  avatarText: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.bold,
-    color: colors.white,
-    letterSpacing: 0.5,
-  },
-  customerName: {
-    fontSize: fontSize.base,
-    fontFamily: fontFamily.semibold,
-    color: colors.textPrimary,
-    marginBottom: spacing.xs,
-    maxWidth: 160,
-  },
-  timeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  time: {
-    fontSize: fontSize.xs,
-    color: colors.textTertiary,
-    fontFamily: fontFamily.semibold,
-  },
-  messagePreview: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    fontFamily: fontFamily.regular,
-    lineHeight: 20,
-    marginBottom: spacing.md,
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-});
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      marginBottom: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.borderSubtle,
+    },
+    topRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing.md,
+      gap: spacing.sm,
+    },
+    topLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      flex: 1,
+    },
+    topRight: {
+      alignItems: 'flex-end',
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexShrink: 0,
+    },
+    avatarText: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.bold,
+      color: colors.white,
+      letterSpacing: 0.5,
+    },
+    customerName: {
+      fontSize: fontSize.base,
+      fontFamily: fontFamily.semibold,
+      color: colors.textPrimary,
+      marginBottom: spacing.xs,
+      maxWidth: 160,
+    },
+    timeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+    },
+    time: {
+      fontSize: fontSize.xs,
+      color: colors.textTertiary,
+      fontFamily: fontFamily.semibold,
+    },
+    messagePreview: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      fontFamily: fontFamily.regular,
+      lineHeight: 20,
+      marginBottom: spacing.md,
+    },
+    bottomRow: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+    },
+  });

@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import { View, useColorScheme } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import {
@@ -74,6 +74,7 @@ function RootLayoutNav(): React.JSX.Element {
 }
 
 export default function RootLayout(): React.JSX.Element | null {
+  const systemScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_600SemiBold,
@@ -81,7 +82,9 @@ export default function RootLayout(): React.JSX.Element | null {
   });
 
   if (!fontsLoaded) {
-    return <View style={{ flex: 1, backgroundColor: '#0F172A' }} />;
+    // Theme provider isn't mounted yet — use system scheme for splash bg
+    const splashBg = systemScheme === 'light' ? '#FAFAFC' : '#0F172A';
+    return <View style={{ flex: 1, backgroundColor: splashBg }} />;
   }
 
   return (

@@ -4,8 +4,10 @@ Configures the app with:
 - CORS middleware
 - Global exception handlers (422, 404, 409, 500)
 - All route modules (auth + protected CRM routes)
-- Database table creation on startup
 - OpenAPI metadata
+
+Note: Database schema is managed exclusively by Alembic migrations.
+      Run `alembic upgrade head` to apply migrations.
 """
 
 import logging
@@ -19,7 +21,7 @@ from fastapi.responses import JSONResponse
 from app.api.routes import enquiry, escalation, followup, health
 from app.api.routes import auth as auth_router
 from app.core.config import settings
-from app.core.database import Base, engine
+from app.core.database import Base
 from app.core.deps import get_current_user
 from app.core.logging import setup_logging
 from app.services.enquiry_service import BusinessRuleError, NotFoundError
@@ -122,10 +124,11 @@ def create_app() -> FastAPI:
 
     @app.on_event("startup")
     def on_startup() -> None:
-        """Create database tables on application startup."""
-        import app.models  # noqa: F401
+        """Run startup tasks. Schema is managed by Alembic — do NOT call create_all here."""
+        import app.models  # noqa: F401  — ensures models are registered on Base
 
-        Base.metadata.create_all(bind=engine)
+        # Removed: Base.metadata.create_all(bind=engine)
+        # Tables are created/migrated exclusively via `alembic upgrade head`.
 
         logger.info(
             "Application started",

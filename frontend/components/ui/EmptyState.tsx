@@ -11,13 +11,13 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, Animated, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  colors,
   fontSize,
   fontFamily,
   spacing,
   iconSize,
   borderRadius,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 interface EmptyStateProps {
   /** Ionicons icon name */
@@ -32,8 +32,10 @@ interface EmptyStateProps {
  * Renders a centered empty state with pulsing double-ring icon, title, and subtitle.
  */
 export function EmptyState({ icon, title, subtitle }: EmptyStateProps): React.JSX.Element {
+  const { colors } = useTheme();
   const pulseScale = useRef(new Animated.Value(1)).current;
   const pulseOpacity = useRef(new Animated.Value(0.5)).current;
+  const styles = makeStyles(colors);
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -89,52 +91,53 @@ export function EmptyState({ icon, title, subtitle }: EmptyStateProps): React.JS
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing['3xl'],
-    paddingVertical: spacing['3xl'],
-  },
-  ringOuter: {
-    width: 96,
-    height: 96,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing['2xl'],
-  },
-  ringPulse: {
-    position: 'absolute',
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    backgroundColor: 'rgba(99,102,241,0.08)',
-  },
-  ringInner: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: 'rgba(99,102,241,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(99,102,241,0.25)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: fontSize.lg,
-    fontFamily: fontFamily.bold,
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.regular,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-});
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: spacing['3xl'],
+      paddingVertical: spacing['3xl'],
+    },
+    ringOuter: {
+      width: 96,
+      height: 96,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: spacing['2xl'],
+    },
+    ringPulse: {
+      position: 'absolute',
+      width: 96,
+      height: 96,
+      borderRadius: 48,
+      borderWidth: 2,
+      borderColor: colors.primary,
+      backgroundColor: 'rgba(99,102,241,0.08)',
+    },
+    ringInner: {
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+      backgroundColor: 'rgba(99,102,241,0.12)',
+      borderWidth: 1,
+      borderColor: 'rgba(99,102,241,0.25)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    title: {
+      fontSize: fontSize.lg,
+      fontFamily: fontFamily.bold,
+      color: colors.textPrimary,
+      textAlign: 'center',
+      marginBottom: spacing.sm,
+    },
+    subtitle: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.regular,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+  });

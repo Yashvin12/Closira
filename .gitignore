@@ -11,6 +11,7 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+Desktop.ini
 *.pem
 
 # ── IDEs & EDITORS ────────────────────────
@@ -21,6 +22,7 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+*.code-workspace
 
 # ── PYTHON & FASTAPI (BACKEND) ────────────
 __pycache__/
@@ -104,6 +106,11 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# ── PACKAGE MANAGERS ──────────────────────
+# Uncomment if you prefer to lock via package-lock.json only:
+# yarn.lock
+# pnpm-lock.yaml
+
 # ── ENVIRONMENT VARIABLES ──────────────────
 .env
 .env.local
@@ -112,3 +119,12 @@ pnpm-debug.log*
 .env.production.local
 backend/.env
 frontend/.env
+
+# ── PERSONAL UTILITY FILES ────────────────
+commands.sh
+
+# ── AI / AGENT TOOLING ────────────────────
+.gemini/
+.cursor/
+.aider*
+.copilot/

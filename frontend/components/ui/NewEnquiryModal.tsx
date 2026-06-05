@@ -28,13 +28,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMockData } from '../../hooks/useMockData';
 import {
   borderRadius,
-  colors,
   fontFamily,
   fontSize,
   iconSize,
-  shadows,
   spacing,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -62,14 +61,14 @@ const CHANNEL_OPTIONS: ChannelOption[] = [
     key: 'email',
     label: 'Email',
     icon: 'mail',
-    color: colors.email,
+    color: '#3B82F6',
     bg: 'rgba(59,130,246,0.15)',
   },
   {
     key: 'call',
     label: 'Call',
     icon: 'call',
-    color: colors.warning,
+    color: '#F59E0B',
     bg: 'rgba(245,158,11,0.15)',
   },
 ];
@@ -91,6 +90,7 @@ export function NewEnquiryModal({
   visible,
   onClose,
 }: NewEnquiryModalProps): React.JSX.Element {
+  const { colors, shadows } = useTheme();
   const { submitNewEnquiry, isLive } = useMockData() as any;
 
   // Form state
@@ -188,6 +188,8 @@ export function NewEnquiryModal({
     }
   }, [channel, customerName, message, submitNewEnquiry, handleClose]);
 
+  const styles = makeStyles(colors);
+
   return (
     <Modal
       visible={visible}
@@ -208,6 +210,7 @@ export function NewEnquiryModal({
         <Animated.View
           style={[
             styles.sheet,
+            shadows.lg,
             { transform: [{ translateY: slideAnim }] },
           ]}
         >
@@ -380,181 +383,184 @@ export function NewEnquiryModal({
 // Styles
 // ─────────────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
-  backdrop: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  keyboardView: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: borderRadius.xl,
-    borderTopRightRadius: borderRadius.xl,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing['3xl'],
-    maxHeight: '85%',
-    borderTopWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    ...shadows.lg,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.border,
-    alignSelf: 'center',
-    marginTop: spacing.md,
-    marginBottom: spacing.lg,
-  },
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    backdrop: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+    },
+    keyboardView: {
+      flex: 1,
+      justifyContent: 'flex-end',
+    },
+    sheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: borderRadius.xl,
+      borderTopRightRadius: borderRadius.xl,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing['3xl'],
+      maxHeight: '85%',
+      borderTopWidth: 1,
+      borderColor: colors.borderSubtle,
+    },
+    handle: {
+      width: 36,
+      height: 4,
+      borderRadius: borderRadius.full,
+      backgroundColor: colors.border,
+      alignSelf: 'center',
+      marginTop: spacing.md,
+      marginBottom: spacing.lg,
+    },
 
-  // ─── Header ────────────────────────────────────────────────────
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing['2xl'],
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  headerIconRing: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primaryLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: fontSize.lg,
-    fontFamily: fontFamily.bold,
-    color: colors.textPrimary,
-  },
-  headerSub: {
-    fontSize: fontSize.xs,
-    fontFamily: fontFamily.regular,
-    color: colors.textTertiary,
-    marginTop: 2,
-  },
-  closeButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+    // ─── Header ────────────────────────────────────────────────────
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing['2xl'],
+    },
+    headerLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    headerIconRing: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.primaryLight,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    headerTitle: {
+      fontSize: fontSize.lg,
+      fontFamily: fontFamily.bold,
+      color: colors.textPrimary,
+    },
+    headerSub: {
+      fontSize: fontSize.xs,
+      fontFamily: fontFamily.regular,
+      color: colors.textTertiary,
+      marginTop: 2,
+    },
+    closeButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.closeButtonBg,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
-  // ─── Fields ────────────────────────────────────────────────────
-  fieldGroup: {
-    marginBottom: spacing.lg,
-  },
-  fieldLabel: {
-    fontSize: 10,
-    fontFamily: fontFamily.bold,
-    color: colors.textTertiary,
-    letterSpacing: 0.8,
-    marginBottom: spacing.sm,
-  },
-  channelRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  channelPill: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.lg,
-  },
-  channelPillInactive: {
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  channelPillText: {
-    fontSize: fontSize.xs,
-    fontFamily: fontFamily.semibold,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-  },
-  textAreaWrapper: {
-    alignItems: 'flex-start',
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-  },
-  inputIcon: {
-    marginRight: spacing.sm,
-  },
-  input: {
-    flex: 1,
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.regular,
-    color: colors.textPrimary,
-    paddingVertical: spacing.md,
-    minHeight: 44,
-  },
-  textArea: {
-    minHeight: 96,
-    paddingTop: 0,
-  },
+    // ─── Fields ────────────────────────────────────────────────────
+    fieldGroup: {
+      marginBottom: spacing.lg,
+    },
+    fieldLabel: {
+      fontSize: 10,
+      fontFamily: fontFamily.bold,
+      color: colors.textTertiary,
+      letterSpacing: 0.8,
+      marginBottom: spacing.sm,
+    },
+    channelRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    channelPill: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.lg,
+    },
+    channelPillInactive: {
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    channelPillText: {
+      fontSize: fontSize.xs,
+      fontFamily: fontFamily.semibold,
+    },
+    inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.inputBg,
+      borderRadius: borderRadius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: spacing.md,
+    },
+    textAreaWrapper: {
+      alignItems: 'flex-start',
+      paddingTop: spacing.md,
+      paddingBottom: spacing.md,
+    },
+    inputIcon: {
+      marginRight: spacing.sm,
+    },
+    input: {
+      flex: 1,
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.regular,
+      color: colors.textPrimary,
+      paddingVertical: spacing.md,
+      minHeight: 44,
+    },
+    textArea: {
+      minHeight: 96,
+      paddingTop: 0,
+    },
 
-  // ─── Status ────────────────────────────────────────────────────
-  statusBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: 'rgba(239,68,68,0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(239,68,68,0.25)',
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  statusBannerSuccess: {
-    backgroundColor: 'rgba(34,197,94,0.1)',
-    borderColor: 'rgba(34,197,94,0.25)',
-  },
-  statusBannerText: {
-    flex: 1,
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.semibold,
-    color: colors.danger,
-  },
+    // ─── Status ────────────────────────────────────────────────────
+    statusBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: 'rgba(239,68,68,0.1)',
+      borderWidth: 1,
+      borderColor: 'rgba(239,68,68,0.25)',
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginBottom: spacing.lg,
+    },
+    statusBannerSuccess: {
+      backgroundColor: 'rgba(34,197,94,0.1)',
+      borderColor: 'rgba(34,197,94,0.25)',
+    },
+    statusBannerText: {
+      flex: 1,
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.semibold,
+      color: colors.danger,
+    },
 
-  // ─── Submit ────────────────────────────────────────────────────
-  submitButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.lg,
-    marginTop: spacing.sm,
-    ...shadows.md,
-  },
-  submitButtonDisabled: {
-    backgroundColor: colors.primaryDark,
-    opacity: 0.7,
-  },
-  submitButtonText: {
-    fontSize: fontSize.base,
-    fontFamily: fontFamily.bold,
-    color: colors.white,
-    letterSpacing: 0.3,
-  },
-});
+    // ─── Submit ────────────────────────────────────────────────────
+    submitButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.lg,
+      marginTop: spacing.sm,
+    },
+    submitButtonDisabled: {
+      backgroundColor: colors.primaryDark,
+      opacity: 0.7,
+    },
+    submitButtonText: {
+      fontSize: fontSize.base,
+      fontFamily: fontFamily.bold,
+      color: colors.white,
+      letterSpacing: 0.3,
+    },
+  });

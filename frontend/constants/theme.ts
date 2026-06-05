@@ -57,6 +57,26 @@ export const darkColors = {
   /** Slightly elevated inner surface */
   surfaceL2: '#263044',
 
+  // ─── Theme-aware utility tokens ─────────────────────────────────────────
+  /** Subtle card border (dark: white@6%, light: black@6%) */
+  borderSubtle: 'rgba(255,255,255,0.06)',
+  /** Pressed-state surface overlay */
+  surfacePressed: 'rgba(255,255,255,0.03)',
+  /** Input field background */
+  inputBg: 'rgba(255,255,255,0.05)',
+  /** Close / dismiss button background */
+  closeButtonBg: 'rgba(255,255,255,0.06)',
+  /** Inactive count badge background */
+  countBadgeBg: 'rgba(255,255,255,0.1)',
+  /** Active count badge background */
+  countBadgeActiveBg: 'rgba(255,255,255,0.2)',
+
+  // ─── Chat bubble ────────────────────────────────────────────────────────
+  /** Customer chat bubble background */
+  bubbleCustomer: '#334155',
+  /** Customer chat bubble text */
+  bubbleCustomerText: '#F8FAFC',
+
   // ─── Channel brand colours ───────────────────────────────────────────────
   whatsapp: '#25D366',
   email: '#3B82F6',
@@ -96,6 +116,18 @@ export const lightColors = {
 
   white: '#FFFFFF',
   surfaceL2: '#F1F5F9',
+
+  // ─── Theme-aware utility tokens ─────────────────────────────────────────
+  borderSubtle: 'rgba(0,0,0,0.06)',
+  surfacePressed: 'rgba(0,0,0,0.04)',
+  inputBg: 'rgba(0,0,0,0.03)',
+  closeButtonBg: 'rgba(0,0,0,0.06)',
+  countBadgeBg: 'rgba(0,0,0,0.06)',
+  countBadgeActiveBg: 'rgba(255,255,255,0.2)',
+
+  // ─── Chat bubble ────────────────────────────────────────────────────────
+  bubbleCustomer: '#E2E8F0',
+  bubbleCustomerText: '#0F172A',
 
   // ─── Channel brand colours ───────────────────────────────────────────────
   whatsapp: '#25D366',
@@ -189,7 +221,7 @@ export const zIndex = {
   toast: 1000,
 } as const;
 
-export const shadows = {
+export const darkShadows = {
   sm: {
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
@@ -219,6 +251,39 @@ export const shadows = {
   },
 } as const;
 
+export const lightShadows = {
+  sm: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  md: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  lg: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  accent: {
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+} as const;
+
+/** Legacy export — dark shadows for components that haven't migrated. */
+export const shadows = darkShadows;
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Badge / Pill metadata
 // ─────────────────────────────────────────────────────────────────────────────
@@ -244,30 +309,39 @@ export const channelConfig = {
   },
 } as const;
 
-export const statusConfig = {
-  new: {
-    label: 'New',
-    color: '#FFFFFF',
-    bgColor: '#6366F1',
-  },
-  qualified: {
-    label: 'Qualified',
-    color: '#FFFFFF',
-    bgColor: '#22C55E',
-  },
-  escalated: {
-    label: 'Escalated',
-    color: '#FFFFFF',
-    bgColor: '#EF4444',
-  },
-  followed_up: {
-    label: 'Followed Up',
-    color: '#FFFFFF',
-    bgColor: '#F59E0B',
-  },
-  resolved: {
-    label: 'Resolved',
-    color: '#94A3B8',
-    bgColor: '#1E293B',
-  },
-} as const;
+/**
+ * Theme-aware status configuration.
+ * `resolved` uses palette-relative colours so it works in both themes.
+ */
+export function getStatusConfig(palette: ColorPalette) {
+  return {
+    new: {
+      label: 'New',
+      color: '#FFFFFF',
+      bgColor: '#6366F1',
+    },
+    qualified: {
+      label: 'Qualified',
+      color: '#FFFFFF',
+      bgColor: '#22C55E',
+    },
+    escalated: {
+      label: 'Escalated',
+      color: '#FFFFFF',
+      bgColor: '#EF4444',
+    },
+    followed_up: {
+      label: 'Followed Up',
+      color: '#FFFFFF',
+      bgColor: '#F59E0B',
+    },
+    resolved: {
+      label: 'Resolved',
+      color: palette.textSecondary,
+      bgColor: palette.surfaceL2,
+    },
+  } as const;
+}
+
+/** Legacy static export — dark-themed status config. */
+export const statusConfig = getStatusConfig(darkColors);

@@ -17,7 +17,6 @@ import { FollowUpCard } from '../../components/cards/FollowUpCard';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { useMockData, type FollowUp } from '../../hooks/useMockData';
 import {
-  colors,
   fontSize,
   fontFamily,
   letterSpacing,
@@ -25,6 +24,7 @@ import {
   borderRadius,
   iconSize,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 type SectionItem =
   | { type: 'header'; id: string; label: string; count: number; color: string; icon: string }
@@ -35,7 +35,9 @@ type SectionItem =
  */
 export default function FollowUpsScreen(): React.JSX.Element {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const { followups, markFollowUpDone } = useMockData();
+  const styles = makeStyles(colors);
 
   const { overdue, upcoming } = useMemo(() => {
     const now = new Date();
@@ -71,7 +73,7 @@ export default function FollowUpsScreen(): React.JSX.Element {
       upcoming.forEach((f) => items.push({ type: 'item', id: f.id, data: f }));
     }
     return items;
-  }, [overdue, upcoming]);
+  }, [overdue, upcoming, colors]);
 
   const renderItem = ({ item }: { item: SectionItem }) => {
     if (item.type === 'header') {
@@ -123,42 +125,43 @@ export default function FollowUpsScreen(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  listContent: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-    marginTop: spacing.sm,
-  },
-  sectionHeaderText: {
-    fontSize: 10,
-    fontFamily: fontFamily.bold,
-    letterSpacing: letterSpacing.badge,
-  },
-  sectionCount: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: borderRadius.full,
-    minWidth: 20,
-    alignItems: 'center',
-  },
-  sectionCountText: {
-    fontSize: 10,
-    fontFamily: fontFamily.bold,
-    letterSpacing: letterSpacing.tight,
-  },
-  sectionLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-});
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    listContent: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.md,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginBottom: spacing.md,
+      marginTop: spacing.sm,
+    },
+    sectionHeaderText: {
+      fontSize: 10,
+      fontFamily: fontFamily.bold,
+      letterSpacing: letterSpacing.badge,
+    },
+    sectionCount: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: borderRadius.full,
+      minWidth: 20,
+      alignItems: 'center',
+    },
+    sectionCountText: {
+      fontSize: 10,
+      fontFamily: fontFamily.bold,
+      letterSpacing: letterSpacing.tight,
+    },
+    sectionLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
+  });

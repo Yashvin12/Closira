@@ -2,7 +2,7 @@
  * ThemeContext — light / dark / system preference with AsyncStorage persistence.
  *
  * Usage:
- *   const { colors, themeMode, setTheme, toggleTheme } = useTheme();
+ *   const { colors, shadows, statusConfig, themeMode, setTheme, toggleTheme } = useTheme();
  */
 
 import React, {
@@ -10,19 +10,34 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { darkColors, lightColors, type ColorPalette } from '../constants/theme';
+import {
+  darkColors,
+  lightColors,
+  darkShadows,
+  lightShadows,
+  getStatusConfig,
+  type ColorPalette,
+} from '../constants/theme';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 const STORAGE_KEY = '@closira_theme';
 
+type ShadowPreset = typeof darkShadows | typeof lightShadows;
+type StatusConfig = ReturnType<typeof getStatusConfig>;
+
 interface ThemeContextValue {
   /** Resolved color palette for the current mode */
   colors: ColorPalette;
+  /** Resolved shadow presets for the current mode */
+  shadows: ShadowPreset;
+  /** Resolved status config for the current mode */
+  statusConfig: StatusConfig;
   /** Current user preference */
   themeMode: ThemeMode;
   /** Whether the resolved theme is dark */
@@ -67,9 +82,11 @@ export function ThemeProvider({
     (themeMode === 'system' && systemScheme == null);
 
   const colors = isDark ? darkColors : lightColors;
+  const shadows = isDark ? darkShadows : lightShadows;
+  const statusCfg = useMemo(() => getStatusConfig(colors), [colors]);
 
   return (
-    <ThemeContext.Provider value={{ colors, themeMode, isDark, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ colors, shadows, statusConfig: statusCfg, themeMode, isDark, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -24,7 +24,6 @@ import { EscalationCard } from '../../components/cards/EscalationCard';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { useMockData, type Escalation } from '../../hooks/useMockData';
 import {
-  colors,
   fontSize,
   fontFamily,
   letterSpacing,
@@ -32,6 +31,7 @@ import {
   borderRadius,
   iconSize,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -43,7 +43,9 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
  */
 export default function EscalationsScreen(): React.JSX.Element {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const { escalations, resolveEscalation } = useMockData();
+  const styles = makeStyles(colors);
 
   /** Sort high urgency first — no data mutation, pure derived state. */
   const sortedEscalations = useMemo(
@@ -122,64 +124,65 @@ export default function EscalationsScreen(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  sectionHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  sectionHeaderTitle: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.semibold,
-    color: colors.textPrimary,
-  },
-  countRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  urgencyChip: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: borderRadius.full,
-  },
-  urgencyChipHigh: {
-    backgroundColor: 'rgba(239,68,68,0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(239,68,68,0.3)',
-  },
-  urgencyChipMed: {
-    backgroundColor: 'rgba(245,158,11,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(245,158,11,0.25)',
-  },
-  urgencyChipText: {
-    fontSize: 10,
-    fontFamily: fontFamily.bold,
-    color: colors.danger,
-    letterSpacing: letterSpacing.badge,
-  },
-  urgencyChipTextMed: {
-    color: colors.warning,
-  },
-  listContent: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-  },
-  emptyContainer: {
-    flex: 1,
-  },
-});
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    sectionHeaderLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    sectionHeaderTitle: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.semibold,
+      color: colors.textPrimary,
+    },
+    countRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    urgencyChip: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
+      borderRadius: borderRadius.full,
+    },
+    urgencyChipHigh: {
+      backgroundColor: 'rgba(239,68,68,0.15)',
+      borderWidth: 1,
+      borderColor: 'rgba(239,68,68,0.3)',
+    },
+    urgencyChipMed: {
+      backgroundColor: 'rgba(245,158,11,0.12)',
+      borderWidth: 1,
+      borderColor: 'rgba(245,158,11,0.25)',
+    },
+    urgencyChipText: {
+      fontSize: 10,
+      fontFamily: fontFamily.bold,
+      color: colors.danger,
+      letterSpacing: letterSpacing.badge,
+    },
+    urgencyChipTextMed: {
+      color: colors.warning,
+    },
+    listContent: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.md,
+    },
+    emptyContainer: {
+      flex: 1,
+    },
+  });

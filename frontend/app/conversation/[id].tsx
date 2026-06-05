@@ -3,7 +3,7 @@
  *
  * Premium UI features:
  * - AI bubble: indigo (#6366F1) with white text — visually distinct from customer
- * - Customer bubble: Slate 700 (#334155) — readable on dark background
+ * - Customer bubble: theme-aware (dark on light, light on dark)
  * - Header: customer initial avatar + name + channel badge in a compact row
  * - SOP info box: indigo-tinted surface with accent border-left
  * - Escalation box: danger-tinted surface with red border-left
@@ -23,15 +23,14 @@ import { ChannelBadge } from '../../components/ui/ChannelBadge';
 import { StatusPill } from '../../components/ui/StatusPill';
 import { useMockData, type Message, type TimelineEvent } from '../../hooks/useMockData';
 import {
-  colors,
   fontSize,
   fontFamily,
   letterSpacing,
   spacing,
   borderRadius,
-  shadows,
   iconSize,
 } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 import { getInitials, getAvatarBg } from '../../utils/formatters';
 
 function formatMessageTime(timestamp: string): string {
@@ -53,7 +52,8 @@ function formatTimelineTime(timestamp: string): string {
 }
 
 function getEventDisplay(
-  eventType: string
+  eventType: string,
+  colors: any
 ): { label: string; icon: keyof typeof Ionicons.glyphMap; color: string } {
   const map: Record<string, { label: string; icon: keyof typeof Ionicons.glyphMap; color: string }> = {
     created: { label: 'Created', icon: 'add-circle', color: colors.primary },
@@ -75,7 +75,9 @@ function getEventDisplay(
 export default function ConversationDetailScreen(): React.JSX.Element {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
+  const { colors, shadows } = useTheme();
   const { getEnquiryById } = useMockData();
+  const styles = makeStyles(colors);
 
   const enquiry = getEnquiryById(id || '');
 
@@ -135,7 +137,7 @@ export default function ConversationDetailScreen(): React.JSX.Element {
           </View>
           <View style={styles.messageThread}>
             {enquiry.messages.map((msg) => (
-              <MessageBubble key={msg.id} message={msg} />
+              <MessageBubble key={msg.id} message={msg} colors={colors} />
             ))}
           </View>
         </View>
@@ -147,7 +149,7 @@ export default function ConversationDetailScreen(): React.JSX.Element {
               <Text style={styles.sectionLabel}>AI INSIGHTS</Text>
               <View style={styles.sectionDivider} />
             </View>
-            <View style={styles.infoBox}>
+            <View style={[styles.infoBox, shadows.sm]}>
               <View style={styles.infoBoxHeader}>
                 <View style={[styles.infoIconRing, { backgroundColor: colors.primaryLight }]}>
                   <Ionicons name="document-text" size={14} color={colors.primary} />
@@ -158,7 +160,7 @@ export default function ConversationDetailScreen(): React.JSX.Element {
             </View>
 
             {enquiry.suggested_response && (
-              <View style={[styles.infoBox, styles.infoBoxAI]}>
+              <View style={[styles.infoBox, styles.infoBoxAI, shadows.sm]}>
                 <View style={styles.infoBoxHeader}>
                   <View style={[styles.infoIconRing, { backgroundColor: colors.secondaryLight }]}>
                     <Ionicons name="sparkles" size={14} color={colors.secondary} />
@@ -178,7 +180,7 @@ export default function ConversationDetailScreen(): React.JSX.Element {
               <Text style={styles.sectionLabel}>AI SUMMARY</Text>
               <View style={styles.sectionDivider} />
             </View>
-            <View style={[styles.infoBox, styles.infoBoxSummary]}>
+            <View style={[styles.infoBox, styles.infoBoxSummary, shadows.sm]}>
               <View style={styles.infoBoxHeader}>
                 <View style={[styles.infoIconRing, { backgroundColor: 'rgba(99,102,241,0.18)' }]}>
                   <Ionicons name="bulb" size={14} color={colors.primary} />
@@ -197,7 +199,7 @@ export default function ConversationDetailScreen(): React.JSX.Element {
         {/* ─── Escalation Reason ───────────────────────────────── */}
         {enquiry.escalation_reason && (
           <View style={styles.section}>
-            <View style={styles.infoBox}>
+            <View style={[styles.infoBox, shadows.sm]}>
               <View style={[styles.infoBoxBorder, { borderLeftColor: colors.danger }]}>
                 <View style={styles.infoBoxHeader}>
                   <View style={[styles.infoIconRing, { backgroundColor: colors.dangerLight }]}>
@@ -225,6 +227,8 @@ export default function ConversationDetailScreen(): React.JSX.Element {
                 key={`${event.event_type}-${index}`}
                 event={event}
                 isLast={index === enquiry.timeline.length - 1}
+                colors={colors}
+                shadows={shadows}
               />
             ))}
           </View>
@@ -235,8 +239,9 @@ export default function ConversationDetailScreen(): React.JSX.Element {
 }
 
 /** Message bubble component. */
-function MessageBubble({ message }: { message: Message }): React.JSX.Element {
+function MessageBubble({ message, colors }: { message: Message; colors: any }): React.JSX.Element {
   const isCustomer = message.sender === 'customer';
+  const styles = makeStyles(colors);
 
   return (
     <View style={[styles.bubbleWrapper, isCustomer ? styles.bubbleLeft : styles.bubbleRight]}>
@@ -258,16 +263,21 @@ function MessageBubble({ message }: { message: Message }): React.JSX.Element {
 function TimelineItem({
   event,
   isLast,
+  colors,
+  shadows,
 }: {
   event: TimelineEvent;
   isLast: boolean;
+  colors: any;
+  shadows: any;
 }): React.JSX.Element {
-  const display = getEventDisplay(event.event_type);
+  const display = getEventDisplay(event.event_type, colors);
+  const styles = makeStyles(colors);
 
   return (
     <View style={styles.timelineItem}>
       <View style={styles.timelineDotColumn}>
-        <View style={[styles.timelineDot, { backgroundColor: display.color }]}>
+        <View style={[styles.timelineDot, { backgroundColor: display.color }, shadows.sm]}>
           <Ionicons name={display.icon} size={12} color={colors.white} />
         </View>
         {!isLast && <View style={styles.timelineLine} />}
@@ -284,286 +294,285 @@ function TimelineItem({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: spacing.lg,
-  },
+const makeStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: spacing.lg,
+    },
 
-  // ─── Error ────────────────────────────────────────────────────
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    gap: spacing.md,
-    padding: spacing['3xl'],
-  },
-  errorIconRing: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.dangerLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  errorTitle: {
-    fontSize: fontSize.lg,
-    fontFamily: fontFamily.bold,
-    color: colors.textPrimary,
-  },
-  errorSubtitle: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.regular,
-    color: colors.textSecondary,
-  },
+    // ─── Error ────────────────────────────────────────────────────
+    errorContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+      gap: spacing.md,
+      padding: spacing['3xl'],
+    },
+    errorIconRing: {
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+      backgroundColor: colors.dangerLight,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    errorTitle: {
+      fontSize: fontSize.lg,
+      fontFamily: fontFamily.bold,
+      color: colors.textPrimary,
+    },
+    errorSubtitle: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.regular,
+      color: colors.textSecondary,
+    },
 
-  // ─── Header ───────────────────────────────────────────────────
-  headerTitle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  headerAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerAvatarText: {
-    fontSize: fontSize.xs,
-    fontFamily: fontFamily.bold,
-    color: colors.white,
-    letterSpacing: 0.5,
-  },
-  headerTitleContent: {
-    gap: 3,
-  },
-  headerName: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.semibold,
-    color: colors.textPrimary,
-    maxWidth: 180,
-  },
+    // ─── Header ───────────────────────────────────────────────────
+    headerTitle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    headerAvatar: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    headerAvatarText: {
+      fontSize: fontSize.xs,
+      fontFamily: fontFamily.bold,
+      color: colors.white,
+      letterSpacing: 0.5,
+    },
+    headerTitleContent: {
+      gap: 3,
+    },
+    headerName: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.semibold,
+      color: colors.textPrimary,
+      maxWidth: 180,
+    },
 
-  // ─── Status Row ───────────────────────────────────────────────
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing['2xl'],
-  },
-  enquiryId: {
-    fontSize: fontSize.xs,
-    fontFamily: fontFamily.semibold,
-    color: colors.textTertiary,
-    letterSpacing: letterSpacing.label,
-  },
+    // ─── Status Row ───────────────────────────────────────────────
+    statusRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing['2xl'],
+    },
+    enquiryId: {
+      fontSize: fontSize.xs,
+      fontFamily: fontFamily.semibold,
+      color: colors.textTertiary,
+      letterSpacing: letterSpacing.label,
+    },
 
-  // ─── Section ──────────────────────────────────────────────────
-  section: {
-    marginBottom: spacing['2xl'],
-  },
-  sectionLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  sectionLabel: {
-    fontSize: 10,
-    fontFamily: fontFamily.bold,
-    color: colors.textTertiary,
-    letterSpacing: letterSpacing.badge,
-    flexShrink: 0,
-  },
-  sectionDivider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
+    // ─── Section ──────────────────────────────────────────────────
+    section: {
+      marginBottom: spacing['2xl'],
+    },
+    sectionLabelRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      marginBottom: spacing.md,
+    },
+    sectionLabel: {
+      fontSize: 10,
+      fontFamily: fontFamily.bold,
+      color: colors.textTertiary,
+      letterSpacing: letterSpacing.badge,
+      flexShrink: 0,
+    },
+    sectionDivider: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
 
-  // ─── Messages ─────────────────────────────────────────────────
-  messageThread: {
-    gap: spacing.md,
-  },
-  bubbleWrapper: {
-    maxWidth: '82%',
-    gap: 4,
-  },
-  bubbleLeft: {
-    alignSelf: 'flex-start',
-  },
-  bubbleRight: {
-    alignSelf: 'flex-end',
-  },
-  bubble: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.lg,
-  },
-  bubbleCustomer: {
-    backgroundColor: '#334155',
-    borderBottomLeftRadius: 4,
-  },
-  bubbleAI: {
-    backgroundColor: colors.primary,
-    borderBottomRightRadius: 4,
-  },
-  bubbleText: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.regular,
-    lineHeight: 20,
-  },
-  bubbleTextCustomer: {
-    color: colors.textPrimary,
-  },
-  bubbleTextAI: {
-    color: colors.white,
-  },
-  bubbleTimeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  timeRowLeft: {
-    justifyContent: 'flex-start',
-  },
-  timeRowRight: {
-    justifyContent: 'flex-end',
-  },
-  senderLabel: {
-    fontSize: fontSize.xs - 1,
-    fontFamily: fontFamily.semibold,
-    color: colors.textTertiary,
-    marginRight: 2,
-  },
-  bubbleTime: {
-    fontSize: fontSize.xs - 1,
-    color: colors.textTertiary,
-    fontFamily: fontFamily.semibold,
-  },
+    // ─── Messages ─────────────────────────────────────────────────
+    messageThread: {
+      gap: spacing.md,
+    },
+    bubbleWrapper: {
+      maxWidth: '82%',
+      gap: 4,
+    },
+    bubbleLeft: {
+      alignSelf: 'flex-start',
+    },
+    bubbleRight: {
+      alignSelf: 'flex-end',
+    },
+    bubble: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.lg,
+    },
+    bubbleCustomer: {
+      backgroundColor: colors.bubbleCustomer,
+      borderBottomLeftRadius: 4,
+    },
+    bubbleAI: {
+      backgroundColor: colors.primary,
+      borderBottomRightRadius: 4,
+    },
+    bubbleText: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.regular,
+      lineHeight: 20,
+    },
+    bubbleTextCustomer: {
+      color: colors.bubbleCustomerText,
+    },
+    bubbleTextAI: {
+      color: colors.white,
+    },
+    bubbleTimeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+    },
+    timeRowLeft: {
+      justifyContent: 'flex-start',
+    },
+    timeRowRight: {
+      justifyContent: 'flex-end',
+    },
+    senderLabel: {
+      fontSize: fontSize.xs - 1,
+      fontFamily: fontFamily.semibold,
+      color: colors.textTertiary,
+      marginRight: 2,
+    },
+    bubbleTime: {
+      fontSize: fontSize.xs - 1,
+      color: colors.textTertiary,
+      fontFamily: fontFamily.semibold,
+    },
 
-  // ─── Info Boxes ───────────────────────────────────────────────
-  infoBox: {
-    backgroundColor: colors.surfaceL2,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    marginBottom: spacing.md,
-    ...shadows.sm,
-  },
-  infoBoxAI: {
-    borderColor: 'rgba(139,92,246,0.2)',
-  },
-  infoBoxSummary: {
-    borderColor: 'rgba(99,102,241,0.25)',
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
-  },
-  summaryBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: colors.primaryLight,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    marginLeft: 'auto',
-  },
-  summaryBadgeText: {
-    fontSize: 8,
-    fontFamily: fontFamily.bold,
-    color: colors.primary,
-    letterSpacing: 0.6,
-  },
-  infoBoxBorder: {
-    borderLeftWidth: 3,
-    borderRadius: borderRadius.md,
-  },
-  infoBoxHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  infoIconRing: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  infoBoxLabel: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.semibold,
-    color: colors.textPrimary,
-  },
-  infoBoxValue: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.regular,
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
+    // ─── Info Boxes ───────────────────────────────────────────────
+    infoBox: {
+      backgroundColor: colors.surfaceL2,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: colors.borderSubtle,
+      marginBottom: spacing.md,
+    },
+    infoBoxAI: {
+      borderColor: 'rgba(139,92,246,0.2)',
+    },
+    infoBoxSummary: {
+      borderColor: 'rgba(99,102,241,0.25)',
+      borderLeftWidth: 3,
+      borderLeftColor: colors.primary,
+    },
+    summaryBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      backgroundColor: colors.primaryLight,
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      marginLeft: 'auto',
+    },
+    summaryBadgeText: {
+      fontSize: 8,
+      fontFamily: fontFamily.bold,
+      color: colors.primary,
+      letterSpacing: 0.6,
+    },
+    infoBoxBorder: {
+      borderLeftWidth: 3,
+      borderRadius: borderRadius.md,
+    },
+    infoBoxHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginBottom: spacing.sm,
+    },
+    infoIconRing: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    infoBoxLabel: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.semibold,
+      color: colors.textPrimary,
+    },
+    infoBoxValue: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.regular,
+      color: colors.textSecondary,
+      lineHeight: 20,
+    },
 
-  // ─── Timeline ─────────────────────────────────────────────────
-  timeline: {
-    paddingLeft: spacing.xs,
-  },
-  timelineItem: {
-    flexDirection: 'row',
-    minHeight: 56,
-  },
-  timelineDotColumn: {
-    alignItems: 'center',
-    width: 32,
-    marginRight: spacing.md,
-  },
-  timelineDot: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...shadows.sm,
-  },
-  timelineLine: {
-    width: 2,
-    flex: 1,
-    backgroundColor: colors.border,
-    marginVertical: 3,
-  },
-  timelineContent: {
-    flex: 1,
-    paddingBottom: spacing.lg,
-  },
-  timelineLabel: {
-    fontSize: fontSize.sm,
-    fontFamily: fontFamily.semibold,
-    color: colors.textPrimary,
-    marginBottom: 2,
-  },
-  timelineDetail: {
-    fontSize: fontSize.xs,
-    fontFamily: fontFamily.regular,
-    color: colors.textSecondary,
-    lineHeight: 18,
-    marginBottom: spacing.xs,
-  },
-  timelineTimeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  timelineTime: {
-    fontSize: fontSize.xs - 1,
-    color: colors.textTertiary,
-    fontFamily: fontFamily.semibold,
-  },
-});
+    // ─── Timeline ─────────────────────────────────────────────────
+    timeline: {
+      paddingLeft: spacing.xs,
+    },
+    timelineItem: {
+      flexDirection: 'row',
+      minHeight: 56,
+    },
+    timelineDotColumn: {
+      alignItems: 'center',
+      width: 32,
+      marginRight: spacing.md,
+    },
+    timelineDot: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    timelineLine: {
+      width: 2,
+      flex: 1,
+      backgroundColor: colors.border,
+      marginVertical: 3,
+    },
+    timelineContent: {
+      flex: 1,
+      paddingBottom: spacing.lg,
+    },
+    timelineLabel: {
+      fontSize: fontSize.sm,
+      fontFamily: fontFamily.semibold,
+      color: colors.textPrimary,
+      marginBottom: 2,
+    },
+    timelineDetail: {
+      fontSize: fontSize.xs,
+      fontFamily: fontFamily.regular,
+      color: colors.textSecondary,
+      lineHeight: 18,
+      marginBottom: spacing.xs,
+    },
+    timelineTimeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+    },
+    timelineTime: {
+      fontSize: fontSize.xs - 1,
+      color: colors.textTertiary,
+      fontFamily: fontFamily.semibold,
+    },
+  });
