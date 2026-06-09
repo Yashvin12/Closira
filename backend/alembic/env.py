@@ -21,7 +21,9 @@ import app.models  # noqa: F401
 config = context.config
 
 # Override the URL from settings so .env is the single source of truth
-config.set_main_option("sqlalchemy.url", settings.database_url)
+# Escape the '%' character for configparser
+escaped_url = settings.database_url.replace('%', '%%')
+config.set_main_option("sqlalchemy.url", escaped_url)
 
 # Set up Python logging from alembic.ini
 if config.config_file_name is not None:

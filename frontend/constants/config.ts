@@ -20,6 +20,11 @@ import Constants from 'expo-constants';
  * may not be set.
  */
 function getApiBaseUrl(): string {
+  // If an environment variable is set (e.g. during Vercel deployment), use it directly
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
   try {
     // hostUri is set by Expo when running in Expo Go on a real device
     const hostUri =
