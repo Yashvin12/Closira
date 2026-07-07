@@ -31,13 +31,16 @@ function RootLayoutNav(): React.JSX.Element {
   useEffect(() => {
     if (isLoading) return;
 
-    const inAuthGroup = segments[0] === '(auth)';
+    const firstSegment = segments[0];
+    const inAuthGroup = firstSegment === '(auth)';
+    const onLandingPage = !firstSegment || firstSegment === 'index';
+    const inProtectedRoute = !inAuthGroup && !onLandingPage;
 
-    if (!user && !inAuthGroup) {
-      // No session — send to login
-      router.replace('/(auth)/login');
-    } else if (user && inAuthGroup) {
-      // Already logged in — send to dashboard
+    if (!user && inProtectedRoute) {
+      // Not logged in + trying to access dashboard/conversation → send to landing
+      router.replace('/');
+    } else if (user && (inAuthGroup || onLandingPage)) {
+      // Logged in + on landing page or auth screens → send to dashboard
       router.replace('/(tabs)');
     }
   }, [user, isLoading, segments]);
@@ -58,6 +61,7 @@ function RootLayoutNav(): React.JSX.Element {
           contentStyle: { backgroundColor: colors.background },
         }}
       >
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
